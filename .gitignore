@@ -1,0 +1,6 @@
+# Ignore large textbook PDFs from git tracking to keep GitHub repository lightweight
+*.pdf
+
+# System files
+.DS_Store
+Thumbs.db
