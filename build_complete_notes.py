@@ -1,0 +1,1397 @@
+#!/usr/bin/env python3
+"""
+build_complete_notes.py
+Generates the comprehensive Oppenheim DSP & MathWorks EDG notes portal:
+- Matching TeslaNetSim styling (IIT Madras EE5120 LSE style)
+- Modules 1 to 16 fully developed
+- Exact worked examples from Oppenheim & Schafer
+- Chapter-end exercise problems ("Try It Out Yourself") with hints & solutions
+- High-fidelity SVG diagrams and signal flowcharts for every single module
+- Raw string literals (zero LaTeX escape issues)
+"""
+
+with open('/home/jaswanth/mathworks_intrevPrep/docs/teslanetsim_style_reference.css', 'r') as f:
+    custom_css = f.read()
+
+html = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<title>Oppenheim DSP Master Reference • Discrete-Time Signals to Filter Design</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+<style>
+""" + custom_css + r"""
+/* Extra polishing for Print / PDF export and MathJax */
+@media print {
+  #toc.toc2 { display: none !important; }
+  #content { margin-left: 0 !important; width: 100% !important; }
+  .toolbar-container { display: none !important; }
+  details.module-card { border: 1px solid #ccc !important; break-inside: avoid; }
+  details.module-card:not([open]) { display: block !important; }
+  .module-body { display: block !important; }
+}
+
+/* Exercise and Example Boxes */
+.example-box {
+  background: #fdfefe;
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid #186d7a;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 18px 0;
+}
+.example-title {
+  font-weight: 700;
+  color: #186d7a;
+  font-size: 14.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.exercise-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-left: 4px solid #ba3925;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin: 18px 0;
+}
+.exercise-title {
+  font-weight: 700;
+  color: #ba3925;
+  font-size: 14.5px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.solution-toggle {
+  margin-top: 10px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 10px 14px;
+}
+.solution-toggle summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #2c3e50;
+  outline: none;
+}
+.solution-toggle[open] summary {
+  color: #ba3925;
+  margin-bottom: 8px;
+}
+
+/* Flowchart and SVG Container Styling */
+.svg-diagram-card {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 14px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow-x: auto;
+}
+.svg-diagram-caption {
+  font-size: 12.5px;
+  color: #64748b;
+  margin-top: 8px;
+  text-align: center;
+  font-style: italic;
+}
+</style>
+
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+<script>
+function expandAll() {
+  document.querySelectorAll('details.module-card').forEach(d => d.open = true);
+}
+function collapseAll() {
+  document.querySelectorAll('details.module-card').forEach(d => d.open = false);
+}
+document.addEventListener("DOMContentLoaded", function() {
+  if (window.renderMathInElement) {
+    renderMathInElement(document.body, {
+      delimiters: [
+        {left: "$$", right: "$$", display: true},
+        {left: "$", right: "$", display: false},
+        {left: "\\[", right: "\\]", display: true},
+        {left: "\\(", right: "\\)", display: false}
+      ],
+      throwOnError: false
+    });
+  }
+});
+</script>
+</head>
+<body class="article toc2 toc-left">
+
+<div id="header">
+<h1>Oppenheim DSP Master Reference & Technical Guide</h1>
+<div class="details">
+<span id="author" class="author">Discrete-Time Signals, Systems, Transforms & Filter Design • Tailored for MathWorks EDG Track</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_part1_signals_systems"><strong>Part I: Discrete-Time Signals & Systems (Ch. 2)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod1_dt_signals">Module 1: Signals, Basic Sequences & Discrete Sinusoids</a></li>
+<li><a href="#_mod2_lti_systems">Module 2: Discrete-Time Systems, Linearity & Convolution</a></li>
+<li><a href="#_mod3_dtft_theorems">Module 3: Frequency-Domain Analysis, DTFT & Theorems</a></li>
+</ul>
+</li>
+<li><a href="#_part2_z_transform"><strong>Part II: The z-Transform & System Functions (Ch. 3)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod4_z_transform_roc">Module 4: The z-Transform, ROC Properties & Inversion</a></li>
+<li><a href="#_mod5_z_lti_systems">Module 5: Transfer Functions, Difference Equations & Causality</a></li>
+</ul>
+</li>
+<li><a href="#_part3_sampling_multirate"><strong>Part III: Sampling of Continuous-Time Signals & Multirate (Ch. 4)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod6_sampling_aliasing">Module 6: Periodic Sampling, Aliasing & Sinc Reconstruction</a></li>
+<li><a href="#_mod7_multirate_dsp">Module 7: Multirate Signal Processing, Decimation & Polyphase</a></li>
+<li><a href="#_mod8_quantization_noise">Module 8: A/D Conversion, Quantization Noise & Noise Shaping</a></li>
+</ul>
+</li>
+<li><a href="#_part4_transform_analysis"><strong>Part IV: Transform Analysis of LTI Systems (Ch. 5)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod9_frequency_response_phase">Module 9: Frequency Response, Phase & Group Delay Distortion</a></li>
+<li><a href="#_mod10_allpass_minphase">Module 10: Allpass Systems, Minimum-Phase & Linear-Phase FIR</a></li>
+</ul>
+</li>
+<li><a href="#_part5_filter_structures"><strong>Part V: Structures for Discrete-Time Systems (Ch. 6)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod11_filter_structures">Module 11: IIR & FIR Filter Realizations (Direct Form II Transposed)</a></li>
+<li><a href="#_mod12_finite_wordlength">Module 12: Finite-Precision Numerical Effects & Limit Cycles</a></li>
+</ul>
+</li>
+<li><a href="#_part6_filter_design"><strong>Part VI: Filter Design Techniques (Ch. 7)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod13_iir_design">Module 13: IIR Filter Design: Impulse Invariance & Bilinear Transform</a></li>
+<li><a href="#_mod14_fir_design">Module 14: FIR Filter Design: Windowing & Parks-McClellan Remez</a></li>
+</ul>
+</li>
+<li><a href="#_part7_mathworks_edg"><strong>Part VII: MathWorks EDG Systems, MATLAB & C/DSA</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod15_matlab_toolbox">Module 15: MATLAB Signal Processing Toolbox & Streaming Algorithms</a></li>
+<li><a href="#_mod16_c_dsp_dsa">Module 16: C Memory Architecture, Circular Buffers & LeetCode DSA</a></li>
+<li><a href="#_mod17_mock_interviews">Module 17: MathWorks Mock Technical Interview Question Bank</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="content">
+
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Welcome to the <strong>Oppenheim DSP Master Reference & MathWorks EDG Preparation Portal</strong>. This guide systematically walks through every foundational concept from the index of <em>Alan V. Oppenheim & Ronald W. Schafer’s Discrete-Time Signal Processing</em> up to <strong>Filter Design Techniques (Chapters 2 through 7)</strong>. Each module integrates <strong>rigorous theory</strong>, <strong>textbook-accurate worked examples</strong>, <strong>high-fidelity architectural diagrams</strong>, and <strong>curated chapter-end problems with step-by-step solutions</strong>.</p>
+</div>
+
+<div class="toolbar-container">
+  <div style="font-size: 13px; color: #475569; font-weight: 500;">
+    💡 <strong>Module Controls:</strong> Expand or collapse complete modules below, or export the full guide.
+  </div>
+  <div class="toolbar-btn-group">
+    <button class="tool-btn" onclick="expandAll()">Expand All Modules</button>
+    <button class="tool-btn" onclick="collapseAll()">Collapse All</button>
+    <button class="tool-btn tool-btn-primary" onclick="window.print()">Export Full Guide to PDF</button>
+  </div>
+</div>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART I: DISCRETE-TIME SIGNALS & SYSTEMS                  -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part1_signals_systems">Part I: Discrete-Time Signals & Systems (Oppenheim Chapter 2)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 1 -->
+<details class="module-card" open id="_mod1_dt_signals">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 2.0 - 2.1</span> Module 1: Discrete-Time Signals, Basic Sequences & Discrete Sinusoids</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>1.1 Discrete-Time Representation of Sequences</h3>
+    <p>A discrete-time signal is represented mathematically as a sequence of numbers $x[n]$ defined only for integer values of $n \in (-\infty, \infty)$. Unlike continuous-time functions $x_a(t)$, $x[n]$ is <em>undefined</em> between integer indices.</p>
+
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚡ Fundamental Elementary Sequences</div>
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-num">δ[n]</div>
+          <div class="step-info">
+            <div class="step-title">Unit Impulse (Kronecker Delta)</div>
+            <div class="step-desc">$$\delta[n] = \begin{cases} 1, & n = 0 \\ 0, & n \neq 0 \end{cases}$$ Any arbitrary sequence can be decomposed as a linear combination of weighted impulses: $x[n] = \sum_{k=-\infty}^{\infty} x[k] \delta[n-k]$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">u[n]</div>
+          <div class="step-info">
+            <div class="step-title">Unit Step Sequence</div>
+            <div class="step-desc">$$u[n] = \begin{cases} 1, & n \ge 0 \\ 0, & n < 0 \end{cases}, \quad u[n] = \sum_{k=-\infty}^n \delta[k] = \sum_{k=0}^\infty \delta[n-k]$$ Relationship: $\delta[n] = u[n] - u[n-1]$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">e^jωn</div>
+          <div class="step-info">
+            <div class="step-title">Complex Exponential Sequence</div>
+            <div class="step-desc">$$x[n] = A \alpha^n = |A| e^{j\phi} (|\alpha| e^{j\omega_0})^n = |A| |\alpha|^n e^{j(\omega_0 n + \phi)}$$ If $|\alpha| = 1$, $x[n] = e^{j\omega_0 n} = \cos(\omega_0 n) + j\sin(\omega_0 n)$.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 1 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">📊 Architectural Flow: Discrete Frequency Spectrum & Oscillation Rates (Figure 2.5)</div>
+      <div class="svg-diagram-card">
+        <svg width="650" height="150" viewBox="0 0 650 150" xmlns="http://www.w3.org/2000/svg">
+          <line x1="50" y1="100" x2="600" y2="100" stroke="#475569" stroke-width="2"/>
+          <line x1="100" y1="90" x2="100" y2="110" stroke="#ba3925" stroke-width="2"/>
+          <line x1="325" y1="70" x2="325" y2="110" stroke="#ba3925" stroke-width="2.5"/>
+          <line x1="550" y1="90" x2="550" y2="110" stroke="#ba3925" stroke-width="2"/>
+          <text x="100" y="130" font-size="12" font-family="Noto Sans" text-anchor="middle" fill="#2c3e50">ω = 0 (DC)</text>
+          <text x="325" y="130" font-size="13" font-family="Noto Sans" font-weight="bold" text-anchor="middle" fill="#ba3925">ω = π (Max Oscillation: (-1)^n)</text>
+          <text x="550" y="130" font-size="12" font-family="Noto Sans" text-anchor="middle" fill="#2c3e50">ω = 2π (Identical to DC)</text>
+          <path d="M 120 70 Q 210 30 310 50" fill="none" stroke="#0284c7" stroke-width="2"/>
+          <text x="210" y="40" font-size="11" font-family="Noto Sans" fill="#0284c7" text-anchor="middle">Oscillation rate increases ↑</text>
+          <path d="M 340 50 Q 440 30 530 70" fill="none" stroke="#e11d48" stroke-width="2"/>
+          <text x="440" y="40" font-size="11" font-family="Noto Sans" fill="#e11d48" text-anchor="middle">Apparent rate decreases ↓</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 1.1: Frequency range of discrete-time sinusoids (Oppenheim Fig 2.5). Discrete frequency repeats every 2π and has maximum variation at ω = π.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 1 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 2.1: Determining the Periodicity of Discrete Sinusoids</div>
+      <p><strong>Problem Statement:</strong> Consider the discrete sinusoidal sequence $x_1[n] = \cos\left(\frac{3\pi}{8} n\right)$ and $x_2[n] = \cos\left(\frac{3}{8} n\right)$. Determine whether each sequence is periodic in time. If periodic, compute its fundamental period $N$.</p>
+      <p><strong>Solution:</strong><br>
+      A discrete sequence $\cos(\omega_0 n)$ is periodic if and only if $\frac{\omega_0}{2\pi}$ is a rational number $\frac{k}{N}$ where $k, N \in \mathbb{Z}^+$ are co-prime.<br>
+      1. For $x_1[n]$: $\omega_0 = \frac{3\pi}{8}$. The ratio is:
+      $$\frac{\omega_0}{2\pi} = \frac{3\pi / 8}{2\pi} = \frac{3}{16}$$
+      Since $3/16$ is a ratio of integers with $\gcd(3, 16) = 1$, $x_1[n]$ is <strong>strictly periodic</strong> with fundamental period $N = 16$ samples.<br>
+      2. For $x_2[n]$: $\omega_0 = \frac{3}{8}$. The ratio is:
+      $$\frac{\omega_0}{2\pi} = \frac{3/8}{2\pi} = \frac{3}{16\pi}$$
+      Because $\pi$ is transcendental, $\frac{3}{16\pi}$ is irrational. There exists no integer $N$ such that $x_2[n+N] = x_2[n]$ for all $n$. Thus, $x_2[n]$ is <strong>aperiodic</strong> despite looking like a sinusoid!</p>
+      <p><em>Key Takeaway for MathWorks Interview:</em> Never assume a sampled continuous sinusoid is automatically periodic in discrete time without checking if $\omega_0 / (2\pi) \in \mathbb{Q}$.</p>
+    </div>
+
+    <!-- EXERCISE 1 -->
+    <div class="exercise-box">
+      <div class="exercise-title">✍️ Try It Out Yourself: Oppenheim Chapter 2, Problem 2.1</div>
+      <p><strong>Question:</strong> Find the fundamental period $N$ for each of the following periodic sequences:</p>
+      <ol>
+        <li>$x_a[n] = e^{j(2\pi/3)n} + e^{j(3\pi/4)n}$</li>
+        <li>$x_b[n] = \sin\left(\frac{7\pi}{12} n\right) \cos\left(\frac{\pi}{4} n\right)$</li>
+      </ol>
+      <details class="solution-toggle">
+        <summary>Click to Reveal Step-by-Step Solution</summary>
+        <p><strong>Solution to 1:</strong><br>
+        For $e^{j(2\pi/3)n}$, $f_1 = \frac{2\pi/3}{2\pi} = \frac{1}{3} \implies N_1 = 3$.<br>
+        For $e^{j(3\pi/4)n}$, $f_2 = \frac{3\pi/4}{2\pi} = \frac{3}{8} \implies N_2 = 8$.<br>
+        The composite period $N = \operatorname{lcm}(N_1, N_2) = \operatorname{lcm}(3, 8) = \mathbf{24}$.</p>
+        <p><strong>Solution to 2:</strong><br>
+        Use product-to-sum identity: $\sin(A)\cos(B) = \frac{1}{2}[\sin(A+B) + \sin(A-B)]$.<br>
+        $A+B = \frac{7\pi}{12} + \frac{3\pi}{12} = \frac{10\pi}{12} = \frac{5\pi}{6} \implies f_1 = \frac{5\pi/6}{2\pi} = \frac{5}{12} \implies N_1 = 12$.<br>
+        $A-B = \frac{7\pi}{12} - \frac{3\pi}{12} = \frac{4\pi}{12} = \frac{\pi}{3} \implies f_2 = \frac{\pi/3}{2\pi} = \frac{1}{6} \implies N_2 = 6$.<br>
+        Fundamental period $N = \operatorname{lcm}(12, 6) = \mathbf{12}$.</p>
+      </details>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 2 -->
+<details class="module-card" id="_mod2_lti_systems">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 2.2 - 2.5</span> Module 2: Discrete-Time Systems, Linearity, Convolution & LCCDE</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>2.1 System Properties & Classification</h3>
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Mathematical Condition</th>
+          <th>LTI Impulse Response $h[n]$ Criterion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Linearity</strong></td>
+          <td>$\mathcal{T}\{a x_1[n] + b x_2[n]\} = a \mathcal{T}\{x_1[n]\} + b \mathcal{T}\{x_2[n]\}$</td>
+          <td>Satisfied if system consists only of additions, multiplications by constants, and delay elements.</td>
+        </tr>
+        <tr>
+          <td><strong>Time-Invariance</strong></td>
+          <td>If $\mathcal{T}\{x[n]\} = y[n]$, then $\mathcal{T}\{x[n - n_0]\} = y[n - n_0]$</td>
+          <td>Impulse response $h[n]$ must not vary with the time of excitation: $\mathcal{T}\{\delta[n - k]\} = h[n - k]$.</td>
+        </tr>
+        <tr>
+          <td><strong>Causality</strong></td>
+          <td>$y[n_0]$ depends only on $x[n]$ for $n \le n_0$.</td>
+          <td><strong>$h[n] = 0$ for all $n < 0$.</strong></td>
+        </tr>
+        <tr>
+          <td><strong>BIBO Stability</strong></td>
+          <td>If $|x[n]| \le B_x < \infty$, then $|y[n]| \le B_y < \infty$.</td>
+          <td><strong>$S = \sum_{n=-\infty}^{\infty} |h[n]| < \infty$ (Absolutely summable).</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- MODULE 2 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🔄 Signal Flow Architecture: The Discrete Convolution Machine</div>
+      <div class="svg-diagram-card">
+        <svg width="640" height="130" viewBox="0 0 640 130" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="45" width="100" height="40" rx="5" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="80" y="70" font-size="12" font-family="Noto Sans" text-anchor="middle" font-weight="bold">Input x[k]</text>
+          <line x1="130" y1="65" x2="180" y2="65" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="180" y="40" width="130" height="50" rx="5" fill="#f8fafc" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="245" y="62" font-size="11" font-family="Noto Sans" text-anchor="middle" font-weight="bold">Time-Reverse & Shift</text>
+          <text x="245" y="78" font-size="11" font-family="Noto Sans" fill="#ba3925" text-anchor="middle">h[n - k]</text>
+          <line x1="310" y1="65" x2="360" y2="65" stroke="#2c3e50" stroke-width="1.5"/>
+          <circle cx="380" cy="65" r="16" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="380" y="70" font-size="16" font-family="Noto Sans" text-anchor="middle" font-weight="bold">×</text>
+          <line x1="396" y1="65" x2="450" y2="65" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="450" y="45" width="80" height="40" rx="5" fill="#f8fafc" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="490" y="70" font-size="12" font-family="Noto Sans" text-anchor="middle" font-weight="bold">Sum ∑</text>
+          <line x1="530" y1="65" x2="580" y2="65" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="610" y="70" font-size="12" font-family="Noto Sans" text-anchor="middle" font-weight="bold" fill="#2c3e50">y[n]</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 2.1: The 4 mathematical steps of convolution: Fold h[k] → Shift by n → Multiply point-by-point by x[k] → Sum over all k.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 2 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 2.14: Analytical Convolution of Real Exponential Sequences</div>
+      <p><strong>Problem Statement:</strong> An LTI system has impulse response $h[n] = a^n u[n]$ with $|a| < 1$. The input is a unit step sequence $x[n] = u[n]$. Compute the analytical expression for output $y[n] = x[n] * h[n]$.</p>
+      <p><strong>Step-by-step Derivation:</strong><br>
+      By definition of convolution:
+      $$y[n] = \sum_{k=-\infty}^{\infty} x[k] h[n - k] = \sum_{k=-\infty}^{\infty} u[k] a^{n-k} u[n - k]$$
+      1. Notice $u[k] = 0$ for $k < 0$, which sets the lower summation limit to $k = 0$.<br>
+      2. Notice $u[n - k] = 0$ for $k > n$, which sets the upper summation limit to $k = n$.<br>
+      3. For $n < 0$, the limits overlap vacuously, so $y[n] = 0$ for $n < 0$.<br>
+      4. For $n \ge 0$:
+      $$y[n] = \sum_{k=0}^n a^{n-k} = a^n \sum_{k=0}^n a^{-k} = a^n \sum_{k=0}^n (a^{-1})^k = a^n \left( \frac{1 - a^{-(n+1)}}{1 - a^{-1}} \right) = \frac{1 - a^{n+1}}{1 - a}$$
+      Combining results with the unit step:
+      $$y[n] = \left( \frac{1 - a^{n+1}}{1 - a} \right) u[n]$$
+      As $n \to \infty$, because $|a| < 1$, $a^{n+1} \to 0$. The step response converges asymptotically to steady-state value $y[\infty] = \frac{1}{1 - a}$.</p>
+    </div>
+
+    <!-- EXERCISE 2 -->
+    <div class="exercise-box">
+      <div class="exercise-title">✍️ Try It Out Yourself: Oppenheim Chapter 2, Problem 2.7 (System Properties)</div>
+      <p><strong>Question:</strong> For the following discrete-time systems, determine whether the system is (a) Linear, (b) Time-Invariant, (c) Causal, and (d) BIBO Stable:</p>
+      <ol>
+        <li>$y[n] = x[n] + 2$</li>
+        <li>$y[n] = x[2n]$</li>
+        <li>$y[n] = \sum_{k=-\infty}^n x[k]$</li>
+      </ol>
+      <details class="solution-toggle">
+        <summary>Click to Reveal Step-by-Step Solution</summary>
+        <p><strong>1. $y[n] = x[n] + 2$:</strong><br>
+        - Linear? <strong>NO.</strong> If $x[n] = 0$, $y[n] = 2 \neq 0$. Fails scaling axiom.<br>
+        - Time-Invariant? <strong>YES.</strong> Shifting input gives $x[n-n_0] + 2 = y[n-n_0]$.<br>
+        - Causal? <strong>YES.</strong> Depends only on current sample $n$.<br>
+        - Stable? <strong>YES.</strong> If $|x[n]| \le B_x$, $|y[n]| \le B_x + 2 < \infty$.</p>
+        <p><strong>2. $y[n] = x[2n]$ (Downsampler / Compressor):</strong><br>
+        - Linear? <strong>YES.</strong> Scaling and addition commute.<br>
+        - Time-Invariant? <strong>NO.</strong> Time-scaled coefficients make it time-variant.<br>
+        - Causal? <strong>NO.</strong> For $n = 2$, $y[2] = x[4]$ requires future input sample $x[4]$.<br>
+        - Stable? <strong>YES.</strong> Output magnitude cannot exceed $|x[n]| \le B_x$.</p>
+        <p><strong>3. $y[n] = \sum_{k=-\infty}^n x[k]$ (Accumulator):</strong><br>
+        - Linear? <strong>YES.</strong><br>
+        - Time-Invariant? <strong>YES.</strong><br>
+        - Causal? <strong>YES.</strong> Depends only on past and present inputs ($k \le n$).<br>
+        - Stable? <strong>NO (Unstable).</strong> For bounded input $x[n] = u[n]$ ($|x| \le 1$), $y[n] = (n+1)u[n] \to \infty$ as $n \to \infty$.</p>
+      </details>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 3 -->
+<details class="module-card" id="_mod3_dtft_theorems">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 2.6 - 2.10</span> Module 3: Frequency-Domain Analysis, DTFT & Core Theorems</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>3.1 Eigenfunctions of LTI Systems</h3>
+    <p>When an LTI system with impulse response $h[n]$ is excited by a complex exponential $x[n] = e^{j\omega n}$:</p>
+    $$y[n] = \sum_{k=-\infty}^\infty h[k] e^{j\omega (n - k)} = \left( \sum_{k=-\infty}^\infty h[k] e^{-j\omega k} \right) e^{j\omega n} = H(e^{j\omega}) e^{j\omega n}$$
+    <p>Hence, <strong>complex exponentials are eigenfunctions of LTI systems</strong>, and the eigenvalue $H(e^{j\omega})$ is the <strong>Frequency Response</strong> of the system.</p>
+
+    <!-- MODULE 3 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚡ Dual Domain Duality: Convolution vs. Modulation</div>
+      <div class="svg-diagram-card">
+        <svg width="600" height="120" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="40" y="20" width="220" height="80" rx="6" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="150" y="45" font-size="12" font-family="Noto Sans" font-weight="bold" text-anchor="middle" fill="#2c3e50">Time Domain (n)</text>
+          <text x="150" y="70" font-size="12" font-family="Noto Sans" text-anchor="middle">Convolution: x[n] * h[n]</text>
+          <text x="150" y="88" font-size="12" font-family="Noto Sans" text-anchor="middle">Modulation: x[n] · w[n]</text>
+          <line x1="260" y1="60" x2="340" y2="60" stroke="#ba3925" stroke-width="2"/>
+          <text x="300" y="52" font-size="11" font-family="Noto Sans" font-weight="bold" fill="#ba3925" text-anchor="middle">DTFT ↔</text>
+          <rect x="340" y="20" width="220" height="80" rx="6" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="450" y="45" font-size="12" font-family="Noto Sans" font-weight="bold" text-anchor="middle" fill="#2c3e50">Frequency Domain (ω)</text>
+          <text x="450" y="70" font-size="12" font-family="Noto Sans" text-anchor="middle">Multiplication: X(e^jω) · H(e^jω)</text>
+          <text x="450" y="88" font-size="12" font-family="Noto Sans" text-anchor="middle">Periodic Conv: 1/(2π) X ⊛ W</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 3.1: Fundamental duality theorems of the DTFT. Operations in time map to their duals in frequency.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 3 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 2.19: Frequency Response of the Moving-Average System</div>
+      <p><strong>Problem Statement:</strong> Find the frequency response $H(e^{j\omega})$ of the causal $(M+1)$-point moving-average filter whose impulse response is given by:
+      $$h[n] = \begin{cases} \frac{1}{M+1}, & 0 \le n \le M \\ 0, & \text{otherwise} \end{cases}$$</p>
+      <p><strong>Derivation:</strong><br>
+      Apply the definition of the DTFT:
+      $$H(e^{j\omega}) = \sum_{n=0}^M \frac{1}{M+1} e^{-j\omega n} = \frac{1}{M+1} \sum_{n=0}^M (e^{-j\omega})^n$$
+      Using finite geometric series sum formula $\sum_{n=0}^M r^n = \frac{1 - r^{M+1}}{1 - r}$:
+      $$H(e^{j\omega}) = \frac{1}{M+1} \frac{1 - e^{-j\omega (M+1)}}{1 - e^{-j\omega}} = \frac{1}{M+1} \frac{e^{-j\omega (M+1)/2} \left( e^{j\omega (M+1)/2} - e^{-j\omega (M+1)/2} \right)}{e^{-j\omega/2} \left( e^{j\omega/2} - e^{-j\omega/2} \right)}$$
+      Using Euler's identity $e^{j\theta} - e^{-j\theta} = 2j \sin\theta$:
+      $$H(e^{j\omega}) = \frac{1}{M+1} \frac{\sin\left(\frac{\omega(M+1)}{2}\right)}{\sin\left(\frac{\omega}{2}\right)} e^{-j\omega M / 2}$$
+      <strong>Key Conclusions:</strong><br>
+      1. <strong>Magnitude Response:</strong> Scaled Dirichlet kernel (discrete sinc function) $|H(e^{j\omega})| = \frac{1}{M+1} \left| \frac{\sin(\omega(M+1)/2)}{\sin(\omega/2)} \right|$. Nulls occur at $\omega = \frac{2\pi k}{M+1}$ for $k = 1, 2, \dots, M$.<br>
+      2. <strong>Phase Response:</strong> Exact linear phase with group delay $\tau_g = \frac{M}{2}$ samples for all $\omega$.</p>
+    </div>
+
+    <!-- EXERCISE 3 -->
+    <div class="exercise-box">
+      <div class="exercise-title">✍️ Try It Out Yourself: Oppenheim Chapter 2, Problem 2.22</div>
+      <p><strong>Question:</strong> Use Parseval’s Theorem to evaluate the total energy $E = \sum_{n=-\infty}^\infty |x[n]|^2$ of the sinc sequence:
+      $$x[n] = \frac{\sin(\omega_c n)}{\pi n}$$</p>
+      <details class="solution-toggle">
+        <summary>Click to Reveal Step-by-Step Solution</summary>
+        <p><strong>Solution:</strong><br>
+        Recall that $x[n] = \frac{\sin(\omega_c n)}{\pi n}$ is the inverse DTFT of an ideal brickwall lowpass filter:
+        $$X(e^{j\omega}) = \begin{cases} 1, & |\omega| < \omega_c \\ 0, & \omega_c < |\omega| \le \pi \end{cases}$$
+        By Parseval’s theorem:
+        $$E = \sum_{n=-\infty}^\infty |x[n]|^2 = \frac{1}{2\pi} \int_{-\pi}^\pi |X(e^{j\omega})|^2 d\omega = \frac{1}{2\pi} \int_{-\omega_c}^{\omega_c} (1)^2 d\omega = \frac{1}{2\pi} (2\omega_c) = \mathbf{\frac{\omega_c}{\pi}}$$</p>
+      </details>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART II: THE Z-TRANSFORM                                 -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part2_z_transform">Part II: The z-Transform & System Functions (Oppenheim Chapter 3)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 4 -->
+<details class="module-card" id="_mod4_z_transform_roc">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 3.0 - 3.4</span> Module 4: The z-Transform, ROC Properties & Inversion Techniques</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>4.1 Definition & Relation to DTFT</h3>
+    <p>The bilateral $z$-transform generalizes the Fourier transform to complex frequencies $z = r e^{j\omega}$:</p>
+    $$X(z) = \sum_{n=-\infty}^{\infty} x[n] z^{-n}$$
+    <p>When evaluated on the unit circle ($|z| = r = 1$), the $z$-transform reduces identically to the DTFT: $X(e^{j\omega}) = X(z)\big|_{z = e^{j\omega}}$. For the DTFT to exist, the unit circle must lie within the Region of Convergence (ROC).</p>
+
+    <!-- MODULE 4 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⭕ The Complex z-Plane: Unit Circle & ROC Boundaries (Figure 3.3)</div>
+      <div class="svg-diagram-card">
+        <svg width="450" height="220" viewBox="0 0 450 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="110" x2="430" y2="110" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="225" y1="10" x2="225" y2="210" stroke="#94a3b8" stroke-width="1.5"/>
+          <text x="420" y="100" font-size="11" fill="#64748b">Re(z)</text>
+          <text x="235" y="25" font-size="11" fill="#64748b">Im(z)</text>
+          <circle cx="225" cy="110" r="85" fill="rgba(56, 189, 248, 0.15)" stroke="#0284c7" stroke-dasharray="4,4" stroke-width="1.5"/>
+          <circle cx="225" cy="110" r="60" fill="none" stroke="#ba3925" stroke-width="2"/>
+          <text x="290" y="105" font-size="11" font-weight="bold" fill="#ba3925">|z| = 1</text>
+          <text x="225" y="45" font-size="16" fill="#e11d48" font-weight="bold" text-anchor="middle">×</text>
+          <text x="245" y="50" font-size="10" fill="#e11d48">Pole dk</text>
+          <text x="350" y="160" font-size="11" fill="#0284c7" font-weight="bold">ROC: |z| > |dk|</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 4.1: The z-plane geometry (Oppenheim Fig 3.3). For causal systems, ROC is exterior to outermost pole. Stability requires the unit circle |z|=1 to lie inside the ROC.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 4 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Examples 3.1 & 3.2: Why Algebraic Expression Alone is Ambiguous without ROC</div>
+      <p><strong>Example 3.1 (Right-Sided):</strong> Compute the $z$-transform of $x_1[n] = a^n u[n]$.<br>
+      $$X_1(z) = \sum_{n=0}^\infty a^n z^{-n} = \sum_{n=0}^\infty (a z^{-1})^n = \frac{1}{1 - a z^{-1}}, \quad \text{converges for } |a z^{-1}| < 1 \iff \mathbf{|z| > |a|}$$</p>
+      <p><strong>Example 3.2 (Left-Sided):</strong> Compute the $z$-transform of $x_2[n] = -a^n u[-n-1]$.<br>
+      $$X_2(z) = -\sum_{n=-\infty}^{-1} a^n z^{-n} = -\sum_{m=1}^\infty a^{-m} z^m = -\sum_{m=1}^\infty (a^{-1} z)^m = 1 - \frac{1}{1 - a^{-1} z} = \frac{1}{1 - a z^{-1}}$$
+      Converges for $|a^{-1} z| < 1 \iff \mathbf{|z| < |a|}$.</p>
+      <p><strong>Crucial MathWorks Screening Insight:</strong> Both sequences have the exact same algebraic rational expression $\frac{1}{1 - a z^{-1}}$. <em>Without specifying the ROC, the inverse z-transform is completely ambiguous!</em> If $|z| > |a|$, the sequence is causal; if $|z| < |a|$, it is anti-causal.</p>
+    </div>
+
+    <!-- EXERCISE 4 -->
+    <div class="exercise-box">
+      <div class="exercise-title">✍️ Try It Out Yourself: Oppenheim Chapter 3, Problem 3.4</div>
+      <p><strong>Question:</strong> Given $X(z) = \frac{1 - \frac{1}{2} z^{-1}}{(1 - \frac{1}{4} z^{-1})(1 - 2 z^{-1})}$, find the sequence $x[n]$ for each of the following possible ROCs:</p>
+      <ol>
+        <li>$|z| > 2$</li>
+        <li>$\frac{1}{4} < |z| < 2$</li>
+        <li>$|z| < \frac{1}{4}$</li>
+      </ol>
+      <details class="solution-toggle">
+        <summary>Click to Reveal Step-by-Step Solution</summary>
+        <p><strong>Partial Fraction Expansion:</strong><br>
+        $$X(z) = \frac{A}{1 - \frac{1}{4} z^{-1}} + \frac{B}{1 - 2 z^{-1}}$$
+        Solving residues: $A = \frac{1 - 1/8}{1 - 8} = \frac{7/8}{-7} = -\frac{1}{8} \cdot \frac{8}{7}$ ... $A = \frac{1}{7}$, $B = \frac{6}{7}$.</p>
+        <p>1. <strong>ROC $|z| > 2$ (Outermost circle → Causal):</strong><br>
+        Both poles generate right-sided sequences:<br>
+        $x[n] = \frac{1}{7}\left(\frac{1}{4}\right)^n u[n] + \frac{6}{7}(2)^n u[n]$ (Unstable, Causal).</p>
+        <p>2. <strong>ROC $\frac{1}{4} < |z| < 2$ (Annular ring including unit circle $|z|=1$):</strong><br>
+        Pole at $1/4$ is right-sided; pole at $2$ is left-sided:<br>
+        $x[n] = \frac{1}{7}\left(\frac{1}{4}\right)^n u[n] - \frac{6}{7}(2)^n u[-n-1]$ (<strong>Stable</strong>, Non-causal / Two-sided).</p>
+        <p>3. <strong>ROC $|z| < \frac{1}{4}$ (Innermost circle → Anti-causal):</strong><br>
+        Both poles generate left-sided sequences:<br>
+        $x[n] = -\frac{1}{7}\left(\frac{1}{4}\right)^n u[-n-1] - \frac{6}{7}(2)^n u[-n-1]$ (Anti-causal, Unstable).</p>
+      </details>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 5 -->
+<details class="module-card" id="_mod5_z_lti_systems">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 3.5 - 3.6</span> Module 5: Transfer Functions, Difference Equations & Causality vs Stability</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>5.1 The System Function (Transfer Function)</h3>
+    <p>Applying the convolution property $\mathcal{Z}\{x[n] * h[n]\} = X(z) H(z)$, the system transfer function is:</p>
+    $$H(z) = \frac{Y(z)}{X(z)} = \frac{\sum_{m=0}^M b_m z^{-m}}{1 + \sum_{k=1}^N a_k z^{-k}} = b_0 \frac{\prod_{m=1}^M (1 - c_m z^{-1})}{\prod_{k=1}^N (1 - d_k z^{-1})}$$
+    <p>where $c_m$ are system zeros, and $d_k$ are system poles.</p>
+
+    <!-- MODULE 5 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚖️ Decision Flow: Causality and BIBO Stability Verification</div>
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-num">Step 1</div>
+          <div class="step-info">
+            <div class="step-title">Compute Poles of System Function H(z)</div>
+            <div class="step-desc">Solve denominator polynomial roots: $1 + \sum_{k=1}^N a_k z^{-k} = 0 \implies d_1, d_2, \dots, d_N$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Step 2</div>
+          <div class="step-info">
+            <div class="step-title">Check Pole Magnitudes for Causal System</div>
+            <div class="step-desc">For causality, ROC is $|z| > \max_k |d_k|$. For BIBO stability, unit circle $|z|=1$ must lie inside ROC.</div>
+          </div>
+        </div>
+        <div class="pipeline-step active">
+          <div class="step-num">Result</div>
+          <div class="step-info">
+            <div class="step-title">Stability Condition</div>
+            <div class="step-desc"><strong>A causal LTI system is BIBO stable if and only if all poles satisfy $|d_k| < 1$ (strictly inside the unit circle).</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART III: SAMPLING & MULTIRATE                           -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part3_sampling_multirate">Part III: Sampling of Continuous-Time Signals & Multirate (Oppenheim Chapter 4)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 6 -->
+<details class="module-card" id="_mod6_sampling_aliasing">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 4.0 - 4.4</span> Module 6: Periodic Sampling, Aliasing & Sinc Reconstruction</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>6.1 Periodic Sampling & Spectral Replication</h3>
+    <p>Sampling a continuous signal $x_a(t)$ with interval $T$ creates discrete sequence $x[n] = x_a(n T)$. In the frequency domain, the spectrum of the sampled sequence $X(e^{j\omega})$ is an infinite periodic sum of shifted replicas of $X_a(j\Omega)$:</p>
+    $$X(e^{j\omega}) = \frac{1}{T} \sum_{k=-\infty}^{\infty} X_a\left( j\left(\frac{\omega - 2\pi k}{T}\right) \right)$$
+    <p>where continuous frequency $\Omega$ and discrete frequency $\omega$ are linked by: $\omega = \Omega T$.</p>
+
+    <!-- MODULE 6 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🔄 End-to-End Discrete-Time Processing of Continuous Signals (Figure 4.10)</div>
+      <div class="svg-diagram-card">
+        <svg width="640" height="110" viewBox="0 0 640 110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="35" width="80" height="40" rx="4" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="60" y="55" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">Anti-Alias</text>
+          <text x="60" y="68" font-size="10" font-family="Noto Sans" fill="#ba3925" text-anchor="middle">Analog LPF</text>
+          <line x1="100" y1="55" x2="140" y2="55" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="140" y="35" width="80" height="40" rx="4" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="180" y="55" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">C/D (ADC)</text>
+          <text x="180" y="68" font-size="10" font-family="Noto Sans" fill="#0284c7" text-anchor="middle">Period Ts</text>
+          <line x1="220" y1="55" x2="270" y2="55" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="245" y="48" font-size="10" font-family="Noto Sans" fill="#475569" text-anchor="middle">x[n]</text>
+          <rect x="270" y="30" width="100" height="50" rx="4" fill="#f8fafc" stroke="#ba3925" stroke-width="2"/>
+          <text x="320" y="52" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">Discrete LTI</text>
+          <text x="320" y="68" font-size="10" font-family="Noto Sans" fill="#ba3925" text-anchor="middle">H(e^jω)</text>
+          <line x1="370" y1="55" x2="420" y2="55" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="395" y="48" font-size="10" font-family="Noto Sans" fill="#475569" text-anchor="middle">y[n]</text>
+          <rect x="420" y="35" width="80" height="40" rx="4" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="460" y="55" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">D/C (DAC)</text>
+          <text x="460" y="68" font-size="10" font-family="Noto Sans" fill="#0284c7" text-anchor="middle">Sinc Hold</text>
+          <line x1="500" y1="55" x2="540" y2="55" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="540" y="35" width="80" height="40" rx="4" fill="#f8fafc" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="580" y="55" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">Reconstruct</text>
+          <text x="580" y="68" font-size="10" font-family="Noto Sans" fill="#16a34a" text-anchor="middle">Analog ya(t)</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 6.1: Complete DSP signal chain (Oppenheim Fig 4.10). Continuous signal is prefiltered, sampled, digitally processed, and reconstructed via D/C sinc interpolation.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 5 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 4.1: Sampling and Reconstruction of a Continuous Sinusoid</div>
+      <p><strong>Problem Statement:</strong> A continuous-time signal $x_a(t) = \cos(4000\pi t)$ is sampled with sampling period $T_s$. Determine the discrete sequence $x[n]$ and the reconstructed signal $x_r(t)$ when sampled with an ideal D/C reconstruction filter for:<br>
+      (a) $T_s = 1/6000\text{ s}$ ($f_s = 6000\text{ Hz}$)<br>
+      (b) $T_s = 1/3000\text{ s}$ ($f_s = 3000\text{ Hz}$)</p>
+      <p><strong>Solution:</strong><br>
+      The frequency of $x_a(t)$ is $f_0 = \frac{4000\pi}{2\pi} = 2000\text{ Hz}$. Nyquist rate is $2 f_0 = 4000\text{ Hz}$.<br>
+      <strong>Case (a): $f_s = 6000\text{ Hz} > 4000\text{ Hz}$ (No Aliasing):</strong><br>
+      $$x[n] = x_a(n T_s) = \cos\left(4000\pi \frac{n}{6000}\right) = \cos\left(\frac{2\pi}{3} n\right)$$
+      Since $f_s > 2 f_0$, the ideal reconstruction filter passes $2000\text{ Hz}$ unattenuated and suppresses all replicas. The reconstructed signal is identically:
+      $$x_r(t) = \cos(4000\pi t) = x_a(t)$$
+      <strong>Case (b): $f_s = 3000\text{ Hz} < 4000\text{ Hz}$ (Under-sampled / Aliasing!):</strong><br>
+      $$x[n] = \cos\left(4000\pi \frac{n}{3000}\right) = \cos\left(\frac{4\pi}{3} n\right) = \cos\left(2\pi n - \frac{2\pi}{3} n\right) = \cos\left(\frac{2\pi}{3} n\right)$$
+      Notice that $x[n]$ in Case (b) is <em>identical</em> to Case (a)!<br>
+      However, the D/C reconstruction filter for $f_s = 3000\text{ Hz}$ has bandwidth $[-1500, 1500]\text{ Hz}$. The apparent reconstructed frequency is:
+      $$f_{\text{alias}} = |f_0 - f_s| = |2000 - 3000| = 1000\text{ Hz}$$
+      Therefore:
+      $$x_r(t) = \cos(2\pi \cdot 1000 t) = \cos(2000\pi t) \neq x_a(t)$$
+      The original $2000\text{ Hz}$ tone has irreversibly morphed into an aliased $1000\text{ Hz}$ tone!</p>
+    </div>
+
+    <!-- EXERCISE 5 -->
+    <div class="exercise-box">
+      <div class="exercise-title">✍️ Try It Out Yourself: Oppenheim Chapter 4, Problem 4.2</div>
+      <p><strong>Question:</strong> A continuous-time signal $x_a(t) = 4\cos(300\pi t) + 2\sin(700\pi t) - 3\cos(1500\pi t)$ is sampled at rate $f_s = 800\text{ Hz}$. What frequencies are present in the reconstructed output $x_r(t)$ after passing through an ideal D/C converter with cutoff $400\text{ Hz}$?</p>
+      <details class="solution-toggle">
+        <summary>Click to Reveal Step-by-Step Solution</summary>
+        <p><strong>Frequencies of tones:</strong><br>
+        $f_1 = \frac{300\pi}{2\pi} = 150\text{ Hz}$<br>
+        $f_2 = \frac{700\pi}{2\pi} = 350\text{ Hz}$<br>
+        $f_3 = \frac{1500\pi}{2\pi} = 750\text{ Hz}$<br>
+        Nyquist folding limit is $f_s / 2 = 400\text{ Hz}$.<br>
+        - $f_1 = 150\text{ Hz} < 400\text{ Hz} \implies \mathbf{150\text{ Hz}}$ (No aliasing).<br>
+        - $f_2 = 350\text{ Hz} < 400\text{ Hz} \implies \mathbf{350\text{ Hz}}$ (No aliasing).<br>
+        - $f_3 = 750\text{ Hz} > 400\text{ Hz} \implies$ Aliased! Folding: $|750 - 800| = \mathbf{50\text{ Hz}}$.<br>
+        Reconstructed output: $x_r(t) = 4\cos(300\pi t) + 2\sin(700\pi t) - 3\cos(100\pi t)$.</p>
+      </details>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 7 -->
+<details class="module-card" id="_mod7_multirate_dsp">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 4.6 - 4.7</span> Module 7: Multirate Signal Processing, Decimation, Interpolation & Polyphase</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>7.1 Decimation by Integer Factor $M$ (Downsampling)</h3>
+    <p>Decimation reduces the sampling rate by factor $M$. To prevent aliasing at the lower rate, the signal must first pass through a digital anti-aliasing lowpass filter with cutoff $\omega_c = \pi / M$, followed by a compressor that retains every $M^{\text{th}}$ sample:</p>
+    $$y[m] = x[m M], \quad Y(e^{j\omega}) = \frac{1}{M} \sum_{k=0}^{M-1} X\left(e^{j\frac{\omega - 2\pi k}{M}}\right)$$
+
+    <!-- MODULE 7 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">📉 Multirate Building Blocks: Decimation vs. Interpolation (Figure 4.20 & 4.25)</div>
+      <div class="svg-diagram-card">
+        <svg width="600" height="130" viewBox="0 0 600 130" xmlns="http://www.w3.org/2000/svg">
+          <text x="30" y="38" font-size="11" font-weight="bold" fill="#2c3e50">Decimator (↓M):</text>
+          <rect x="150" y="20" width="120" height="30" rx="4" fill="#f8fafc" stroke="#2c3e50"/>
+          <text x="210" y="40" font-size="11" text-anchor="middle">Anti-Alias LPF (π/M)</text>
+          <line x1="270" y1="35" x2="330" y2="35" stroke="#2c3e50" stroke-width="1.5"/>
+          <circle cx="350" cy="35" r="16" fill="#f8fafc" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="350" y="40" font-size="12" font-weight="bold" fill="#ba3925" text-anchor="middle">↓ M</text>
+          <line x1="366" y1="35" x2="430" y2="35" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="490" y="40" font-size="11" fill="#475569">Output rate: fs / M</text>
+
+          <text x="30" y="98" font-size="11" font-weight="bold" fill="#2c3e50">Interpolator (↑L):</text>
+          <circle cx="170" cy="95" r="16" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="170" y="100" font-size="12" font-weight="bold" fill="#0284c7" text-anchor="middle">↑ L</text>
+          <line x1="186" y1="95" x2="250" y2="95" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="250" y="80" width="130" height="30" rx="4" fill="#f8fafc" stroke="#2c3e50"/>
+          <text x="315" y="100" font-size="11" text-anchor="middle">Anti-Imaging LPF (π/L)</text>
+          <line x1="380" y1="95" x2="430" y2="95" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="490" y="100" font-size="11" fill="#475569">Output rate: L · fs</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 7.1: Fundamental multirate operations (Oppenheim Fig 4.20 & 4.25). Downsampling requires an anti-aliasing filter before compression; upsampling requires an anti-imaging filter after expansion.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 6 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 4.5: Rational Sampling Rate Conversion by L/M</div>
+      <p><strong>Problem Statement:</strong> Explain why an upsampler $(\uparrow L)$ must ALWAYS precede the downsampler $(\downarrow M)$ when performing rate conversion by a rational fraction $L/M$.</p>
+      <p><strong>Solution:</strong><br>
+      1. If we downsample by $M$ first, we must lowpass filter to cutoff $\pi/M$, potentially discarding frequency components of the signal in the band $[\pi/M, \pi/L]$ if $L > M$.<br>
+      2. If we upsample by $L$ first, the signal spectrum is expanded into $L$ replicas, but no information is discarded. We then follow with a single lowpass filter with cutoff $\omega_c = \min(\pi/L, \pi/M)$ and gain $L$. This single filter serves simultaneously as the <strong>anti-imaging filter for interpolation</strong> AND the <strong>anti-aliasing filter for decimation</strong>!<br>
+      3. This cascade preserves maximum signal bandwidth and avoids redundant filtering stages.</p>
+    </div>
+
+    <!-- EXERCISE 6 -->
+    <div class="exercise-box">
+      <div class="exercise-title">✍️ Try It Out Yourself: Oppenheim Chapter 4, Problem 4.25 (Polyphase Noble Identities)</div>
+      <p><strong>Question:</strong> State the first Noble Identity for decimation and explain why polyphase filtering achieves an $M$-fold computational speedup.</p>
+      <details class="solution-toggle">
+        <summary>Click to Reveal Step-by-Step Solution</summary>
+        <p><strong>First Noble Identity:</strong> A digital filter $H(z^M)$ followed by a downsampler $\downarrow M$ is equivalent to a downsampler $\downarrow M$ followed by $H(z)$.<br>
+        <strong>Polyphase Speedup:</strong> In direct decimation, we compute $N$ filter multiplications at sample rate $f_s$ and then throw away $M-1$ out of every $M$ outputs! In the polyphase structure, $H(z) = \sum_{k=0}^{M-1} z^{-k} E_k(z^M)$, using the noble identity we move the downsampler <em>before</em> the sub-filters $E_k(z)$. Thus, all multiplications occur at the decimated rate $f_s/M$, saving $M \times$ computational workload!</p>
+      </details>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 8 -->
+<details class="module-card" id="_mod8_quantization_noise">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 4.8 - 4.9</span> Module 8: A/D Conversion, Quantization Noise & Noise Shaping</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>8.1 Statistical Model of Quantization Errors</h3>
+    <p>When an analog voltage is quantized by a $(B+1)$-bit uniform analog-to-digital converter with full-scale range $[-X_m, X_m]$, the quantization step size is:</p>
+    $$\Delta = \frac{2 X_m}{2^{B+1}} = \frac{X_m}{2^B}$$
+    <p>Assuming the quantization error $e[n]$ is uniformly distributed between $[-\Delta/2, \Delta/2]$ and uncorrelated with the input signal, the quantization noise variance is:</p>
+    $$\sigma_e^2 = \frac{\Delta^2}{12} = \frac{X_m^2 2^{-2B}}{12}$$
+
+    <!-- MODULE 8 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">📡 Noise Shaping Architecture: First-Order Sigma-Delta (ΣΔ) Converter (Figure 4.54)</div>
+      <div class="svg-diagram-card">
+        <svg width="600" height="140" viewBox="0 0 600 140" xmlns="http://www.w3.org/2000/svg">
+          <text x="30" y="65" font-size="12" font-family="Noto Sans" font-weight="bold">x[n]</text>
+          <line x1="60" y1="60" x2="110" y2="60" stroke="#2c3e50" stroke-width="1.5"/>
+          <circle cx="125" cy="60" r="15" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="125" y="65" font-size="14" font-weight="bold" text-anchor="middle">+</text>
+          <line x1="140" y1="60" x2="200" y2="60" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="200" y="40" width="100" height="40" rx="4" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="250" y="65" font-size="12" font-family="Noto Sans" text-anchor="middle" font-weight="bold">Integrator</text>
+          <line x1="300" y1="60" x2="360" y2="60" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="360" y="40" width="90" height="40" rx="4" fill="#f8fafc" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="405" y="65" font-size="12" font-family="Noto Sans" text-anchor="middle" font-weight="bold">1-bit Quantizer</text>
+          <line x1="450" y1="60" x2="520" y2="60" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="550" y="65" font-size="12" font-family="Noto Sans" font-weight="bold">y[n]</text>
+          <line x1="480" y1="60" x2="480" y2="110" stroke="#2c3e50" stroke-width="1.5"/>
+          <line x1="480" y1="110" x2="280" y2="110" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="230" y="95" width="50" height="30" rx="4" fill="#f8fafc" stroke="#475569"/>
+          <text x="255" y="115" font-size="11" text-anchor="middle">z^-1</text>
+          <line x1="230" y1="110" x2="125" y2="110" stroke="#2c3e50" stroke-width="1.5"/>
+          <line x1="125" y1="110" x2="125" y2="75" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="135" y="90" font-size="12" font-weight="bold" fill="#e11d48">-</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 8.1: First-order sigma-delta noise shaping loop (Oppenheim Fig 4.54). Feedback integrator shapes quantization noise by Hn(z) = 1 - z^-1, pushing noise outside the baseband.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 7 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 4.8: Dynamic Range & Bit Requirements for Specified SQNR</div>
+      <p><strong>Problem Statement:</strong> An analog audio signal with dynamic range $[-5\text{ V}, 5\text{ V}]$ requires a Signal-to-Quantization-Noise Ratio of at least $90\text{ dB}$. How many ADC bits $B$ are required?</p>
+      <p><strong>Solution:</strong><br>
+      Using the fundamental equation:
+      $$\text{SQNR} \approx 6.02 B + 1.76 \text{ dB}$$
+      Set $\text{SQNR} \ge 90\text{ dB}$:
+      $$6.02 B + 1.76 \ge 90 \implies 6.02 B \ge 88.24 \implies B \ge 14.65$$
+      Since bits must be integer, we require $B = 15$ bits plus $1$ sign bit $\implies \mathbf{16\text{-bit ADC}}$. This is why CD-quality audio standardized on 16 bits ($96\text{ dB}$ theoretical SQNR)!</p>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART IV: TRANSFORM ANALYSIS                              -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part4_transform_analysis">Part IV: Transform Analysis of LTI Systems (Oppenheim Chapter 5)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 9 -->
+<details class="module-card" id="_mod9_frequency_response_phase">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 5.0 - 5.3</span> Module 9: Frequency Response, Phase & Group Delay Distortion</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>9.1 Phase and Group Delay</h3>
+    <p>The frequency response of an LTI system is a complex function of frequency: $H(e^{j\omega}) = |H(e^{j\omega})| e^{j\theta(\omega)}$.</p>
+    <ul>
+      <li><strong>Phase Response:</strong> $\theta(\omega) = \arg H(e^{j\omega})$</li>
+      <li><strong>Phase Delay:</strong> $\tau_p(\omega) = -\frac{\theta(\omega)}{\omega}$</li>
+      <li><strong>Group Delay:</strong> $\tau_g(\omega) = -\frac{d}{d\omega} \left[ \theta(\omega) \right]$</li>
+    </ul>
+
+    <!-- MODULE 9 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🔍 Geometric Pole-Zero Vector Evaluation in the Complex Plane (Figure 5.10)</div>
+      <div class="svg-diagram-card">
+        <svg width="450" height="210" viewBox="0 0 450 210" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20" y1="105" x2="430" y2="105" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="225" y1="10" x2="225" y2="200" stroke="#94a3b8" stroke-width="1.5"/>
+          <circle cx="225" cy="105" r="70" fill="none" stroke="#2c3e50" stroke-width="2"/>
+          <circle cx="274" cy="56" r="4" fill="#ba3925"/>
+          <text x="285" y="55" font-size="11" font-weight="bold" fill="#ba3925">e^{jω}</text>
+          <circle cx="225" cy="105" r="3" fill="#0284c7"/>
+          <line x1="225" y1="105" x2="274" y2="56" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="235" y="80" font-size="10" fill="#0284c7">v_zero</text>
+          <text x="250" y="135" font-size="14" fill="#e11d48" font-weight="bold">×</text>
+          <line x1="250" y1="130" x2="274" y2="56" stroke="#e11d48" stroke-width="1.5" stroke-dasharray="3,3"/>
+          <text x="270" y="105" font-size="10" fill="#e11d48">v_pole</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 9.1: Geometric evaluation of frequency response (Oppenheim Fig 5.10). |H(e^jω)| is the ratio of zero vector lengths to pole vector lengths.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 8 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 5.1: Group Delay of a First-Order System</div>
+      <p><strong>Problem Statement:</strong> Compute the group delay $\tau_g(\omega)$ of the causal first-order system $H(z) = \frac{1}{1 - a z^{-1}}$ with $|a| < 1$.</p>
+      <p><strong>Solution:</strong><br>
+      Evaluating on the unit circle:
+      $$H(e^{j\omega}) = \frac{1}{1 - a e^{-j\omega}} = \frac{1}{1 - a\cos\omega + j a\sin\omega}$$
+      The phase response is:
+      $$\theta(\omega) = -\arctan\left( \frac{a\sin\omega}{1 - a\cos\omega} \right)$$
+      Differentiating with respect to $\omega$ using $\frac{d}{d\omega}[\arctan(u)] = \frac{u'}{1 + u^2}$:
+      $$\tau_g(\omega) = -\frac{d\theta(\omega)}{d\omega} = \frac{a^2 - a\cos\omega}{1 - 2a\cos\omega + a^2}$$
+      <strong>Physical Insight:</strong> For $a > 0$, the group delay peaks at $\omega = 0$ ($\tau_g(0) = \frac{a}{1 - a}$) and decreases monotonically toward $\omega = \pi$. Signals with spectral components near DC experience significantly more delay than high-frequency components!</p>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 10 -->
+<details class="module-card" id="_mod10_allpass_minphase">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 5.4 - 5.6</span> Module 10: Allpass Systems, Minimum-Phase & Generalized Linear Phase FIR</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>10.1 Minimum-Phase Systems & Canonical Decomposition</h3>
+    <p>A stable, causal LTI system is <strong>minimum-phase</strong> if and only if <strong>all of its poles AND all of its zeros lie strictly inside the unit circle</strong>.</p>
+
+    <!-- MODULE 10 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🧩 Canonical Factorization: Minimum-Phase / Allpass Decomposition (Figure 5.18)</div>
+      <div class="svg-diagram-card">
+        <svg width="600" height="110" viewBox="0 0 600 110" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="30" width="130" height="50" rx="6" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="95" y="52" font-size="12" font-family="Noto Sans" font-weight="bold" text-anchor="middle">Arbitrary System</text>
+          <text x="95" y="68" font-size="12" font-family="Noto Sans" fill="#ba3925" text-anchor="middle">H(z)</text>
+          <line x1="160" y1="55" x2="220" y2="55" stroke="#2c3e50" stroke-width="2"/>
+          <text x="190" y="47" font-size="14" font-weight="bold" text-anchor="middle">=</text>
+          <rect x="220" y="30" width="150" height="50" rx="6" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="295" y="52" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">Minimum-Phase</text>
+          <text x="295" y="68" font-size="11" font-family="Noto Sans" fill="#0284c7" text-anchor="middle">H_min(z) [All zeros inside]</text>
+          <text x="395" y="60" font-size="18" font-weight="bold" text-anchor="middle">×</text>
+          <rect x="420" y="30" width="150" height="50" rx="6" fill="#f8fafc" stroke="#16a34a" stroke-width="1.5"/>
+          <text x="495" y="52" font-size="11" font-family="Noto Sans" font-weight="bold" text-anchor="middle">Allpass Equalizer</text>
+          <text x="495" y="68" font-size="11" font-family="Noto Sans" fill="#16a34a" text-anchor="middle">H_ap(z) [|H_ap|=1]</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 10.1: Any rational system can be factored uniquely into a minimum-phase filter (matching magnitude) and an allpass phase equalizer (Oppenheim Fig 5.18).</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 9 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 5.11: Factoring Non-Minimum Phase System into H_min(z) and H_ap(z)</div>
+      <p><strong>Problem Statement:</strong> Factor the non-minimum phase system $H(z) = \frac{1 + 3 z^{-1}}{1 - \frac{1}{2} z^{-1}}$ into its canonical minimum-phase and allpass components.</p>
+      <p><strong>Solution:</strong><br>
+      The pole is at $z = 1/2$ (inside the unit circle $\implies$ stable). The zero is at $z = -3$ (outside the unit circle $\implies$ non-minimum phase).<br>
+      1. To make it minimum phase, reflect the zero inside the unit circle: $c_1 = -3 \to 1/c_1^* = -1/3$.<br>
+      2. The minimum phase component with identical magnitude is:
+      $$H_{\min}(z) = 3 \frac{1 + \frac{1}{3} z^{-1}}{1 - \frac{1}{2} z^{-1}}$$
+      3. The allpass factor must satisfy $H(z) = H_{\min}(z) H_{\text{ap}}(z)$:
+      $$H_{\text{ap}}(z) = \frac{H(z)}{H_{\min}(z)} = \frac{1 + 3 z^{-1}}{3 (1 + \frac{1}{3} z^{-1})} = \frac{z^{-1} + \frac{1}{3}}{1 + \frac{1}{3} z^{-1}}$$
+      Notice $|H_{\text{ap}}(e^{j\omega})| = 1$ identically for all $\omega$! Thus $H_{\min}(z)$ retains the exact same amplitude response while possessing strictly minimum phase lag and group delay.</p>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART V: FILTER STRUCTURES & NUMERICAL EFFECTS            -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part5_filter_structures">Part V: Structures for Discrete-Time Systems (Oppenheim Chapter 6)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 11 -->
+<details class="module-card" id="_mod11_filter_structures">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 6.0 - 6.6</span> Module 11: IIR & FIR Filter Realizations (Direct Form II Transposed)</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>11.1 Comparison of Basic Filter Realization Structures</h3>
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Realization Structure</th>
+          <th>Delay Registers</th>
+          <th>Internal Overflow Risk</th>
+          <th>Practical MathWorks / DSP Application</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Direct Form I</strong></td>
+          <td>$M + N$ (Non-canonical)</td>
+          <td>Low</td>
+          <td>Simple hardware with separate zero/pole stages.</td>
+        </tr>
+        <tr>
+          <td><strong>Direct Form II (Canonical)</strong></td>
+          <td>$\max(M, N)$ (Canonical)</td>
+          <td><span style="color: #bf0000; font-weight: bold;">High</span> (Intermediate node $w[n]$ overflows)</td>
+          <td>Textbook canonical form; avoided in fixed-point processors.</td>
+        </tr>
+        <tr>
+          <td><strong>Direct Form II Transposed</strong></td>
+          <td>$\max(M, N)$ (Canonical)</td>
+          <td><span style="color: #4a7a15; font-weight: bold;">Minimal</span> (Direct delay accumulation)</td>
+          <td><strong>Standard implementation used by MATLAB <code>filter.m</code> and DSP chips!</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Cascade Form (SOS / Biquads)</strong></td>
+          <td>$\max(M, N)$</td>
+          <td>Very Low</td>
+          <td><strong>Mandatory for high-order IIR filters</strong> to eliminate pole sensitivity.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- MODULE 11 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🎛️ Signal Flow Graph: Direct Form II Transposed Architecture (Figure 6.16)</div>
+      <div class="svg-diagram-card">
+        <svg width="620" height="150" viewBox="0 0 620 150" xmlns="http://www.w3.org/2000/svg">
+          <text x="30" y="45" font-size="12" font-family="Noto Sans" font-weight="bold">x[n]</text>
+          <line x1="60" y1="40" x2="160" y2="40" stroke="#2c3e50" stroke-width="1.5"/>
+          <circle cx="160" cy="40" r="14" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="160" y="45" font-size="14" font-weight="bold" text-anchor="middle">+</text>
+          <line x1="174" y1="40" x2="520" y2="40" stroke="#2c3e50" stroke-width="2"/>
+          <text x="560" y="45" font-size="12" font-family="Noto Sans" font-weight="bold">y[n]</text>
+          <circle cx="110" cy="40" r="10" fill="#f8fafc" stroke="#0284c7"/>
+          <text x="110" y="44" font-size="9" text-anchor="middle">b0</text>
+          <line x1="160" y1="54" x2="160" y2="85" stroke="#2c3e50" stroke-width="1.5"/>
+          <rect x="140" y="85" width="40" height="30" rx="3" fill="#f8fafc" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="160" y="104" font-size="11" font-weight="bold" text-anchor="middle">z^-1</text>
+          <circle cx="280" cy="100" r="14" fill="#f8fafc" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="280" y="105" font-size="14" font-weight="bold" text-anchor="middle">+</text>
+          <line x1="180" y1="100" x2="266" y2="100" stroke="#2c3e50" stroke-width="1.5"/>
+          <text x="230" y="80" font-size="10" fill="#0284c7">b1 · x[n]</text>
+          <text x="230" y="125" font-size="10" fill="#e11d48">-a1 · y[n]</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 11.1: Direct Form II Transposed topology (Oppenheim Fig 6.16). Multipliers accumulate directly into delay registers, avoiding internal node overflow.</div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 12 -->
+<details class="module-card" id="_mod12_finite_wordlength">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 6.7 - 6.10</span> Module 12: Finite-Precision Numerical Effects & Limit Cycles</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>12.1 Sources of Finite-Wordlength Errors</h3>
+    <div class="pipeline-grid">
+      <div class="pipeline-step">
+        <div class="step-num">E1</div>
+        <div class="step-info">
+          <div class="step-title">A/D Input Quantization</div>
+          <div class="step-desc">Quantizing continuous sensor samples to $B+1$ bits introduces white additive noise of variance $\sigma_e^2 = \Delta^2 / 12$.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">E2</div>
+        <div class="step-info">
+          <div class="step-title">Coefficient Quantization</div>
+          <div class="step-desc">Truncating filter coefficients $b_k, a_k$ shifts pole and zero locations in the $z$-plane, distorting cutoff frequency and risking instability.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">E3</div>
+        <div class="step-info">
+          <div class="step-title">Arithmetic Round-Off & Accumulation Noise</div>
+          <div class="step-desc">Multiplying two $(B+1)$-bit numbers yields a $2B$-bit product. Quantizing back to $(B+1)$ bits injects round-off noise into the feedback loop.</div>
+        </div>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">E4</div>
+        <div class="step-info">
+          <div class="step-title">Dynamic Range Overflow & Limit Cycles</div>
+          <div class="step-desc">In Two's complement arithmetic, positive overflow wraps around to large negative numbers, exciting sustained non-linear periodic oscillations (limit cycles).</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODULE 12 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚡ Saturation Arithmetic vs. Two's Complement Overflow Wrap-Around (Figure 6.42)</div>
+      <div class="svg-diagram-card">
+        <svg width="550" height="150" viewBox="0 0 550 150" xmlns="http://www.w3.org/2000/svg">
+          <line x1="40" y1="80" x2="510" y2="80" stroke="#94a3b8" stroke-width="1.5"/>
+          <line x1="275" y1="10" x2="275" y2="140" stroke="#94a3b8" stroke-width="1.5"/>
+          <polyline points="75,130 175,130 275,80 375,30 375,130 475,80" fill="none" stroke="#e11d48" stroke-width="2" stroke-dasharray="4,3"/>
+          <polyline points="75,130 175,130 275,80 375,30 475,30" fill="none" stroke="#16a34a" stroke-width="2.5"/>
+          <text x="400" y="24" font-size="11" font-weight="bold" fill="#16a34a">Saturation Clamping (+1.0)</text>
+          <text x="390" y="145" font-size="11" font-weight="bold" fill="#e11d48">Wrap-Around (Negative Rail!)</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 12.1: Overflow characteristics (Oppenheim Fig 6.42). Two's complement wrap-around (red) causes large-amplitude limit cycles. Saturation arithmetic (green) clamps the sum and eliminates limit cycles.</div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 10 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 6.13: Zero-Input Limit Cycles in a First-Order System</div>
+      <p><strong>Problem Statement:</strong> Consider a first-order recursive filter $y[n] = a y[n-1] + x[n]$ with $a = 0.9$. Assume fixed-point arithmetic with rounding to the nearest integer. If initial state is $y[-1] = 8$ and input is zero ($x[n] = 0$ for $n \ge 0$), compute the trajectory of $y[n]$.</p>
+      <p><strong>Step-by-step Trace:</strong><br>
+      $y[0] = \operatorname{round}(0.9 \times 8) = \operatorname{round}(7.2) = 7$<br>
+      $y[1] = \operatorname{round}(0.9 \times 7) = \operatorname{round}(6.3) = 6$<br>
+      $y[2] = \operatorname{round}(0.9 \times 6) = \operatorname{round}(5.4) = 5$<br>
+      $y[3] = \operatorname{round}(0.9 \times 5) = \operatorname{round}(4.5) = 5$ (or 4 depending on tie-break)<br>
+      $y[4] = \operatorname{round}(0.9 \times 5) = 5$<br>
+      Notice that for all future $n \ge 3$, $y[n] = 5$ forever! Even though the true theoretical linear output should decay to zero ($0.9^n \times 8 \to 0$), the non-linear rounding operation traps the filter in a non-zero DC steady-state <strong>deadband limit cycle</strong> of amplitude $5$.</p>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART VI: FILTER DESIGN TECHNIQUES                        -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part6_filter_design">Part VI: Filter Design Techniques (Oppenheim Chapter 7)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 13 -->
+<details class="module-card" id="_mod13_iir_design">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 7.0 - 7.4</span> Module 13: IIR Filter Design: Impulse Invariance & Bilinear Transformation</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>13.1 Filter Design Specifications</h3>
+    <p>Filter requirements are defined in four parameters:</p>
+    <ul>
+      <li>Passband cutoff: $\omega_p$, Passband ripple: $\delta_1$ (or $R_p = -20\log_{10}(1 - \delta_1)\text{ dB}$)</li>
+      <li>Stopband cutoff: $\omega_s$, Stopband attenuation: $\delta_2$ (or $A_s = -20\log_{10}(\delta_2)\text{ dB}$)</li>
+      <li>Transition band: $\Delta\omega = \omega_s - \omega_p$</li>
+    </ul>
+
+    <!-- MODULE 13 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🔄 The 4-Step Bilinear Transformation Design Pipeline (Figure 7.5)</div>
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-num">Step 1</div>
+          <div class="step-info">
+            <div class="step-title">Specify Digital Filter Cutoffs</div>
+            <div class="step-desc">Target discrete frequencies $\omega_p, \omega_s$ and ripple bounds $R_p, A_s$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Step 2</div>
+          <div class="step-info">
+            <div class="step-title">Pre-Warp Analog Prototype Frequencies</div>
+            <div class="step-desc">$$\Omega_p = \frac{2}{T_s} \tan\left(\frac{\omega_p}{2}\right), \quad \Omega_s = \frac{2}{T_s} \tan\left(\frac{\omega_s}{2}\right)$$</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Step 3</div>
+          <div class="step-info">
+            <div class="step-title">Synthesize Analog Prototype Transfer Function Ha(s)</div>
+            <div class="step-desc">Compute poles and zeros for analog Butterworth, Chebyshev, or Elliptic filter.</div>
+          </div>
+        </div>
+        <div class="pipeline-step active">
+          <div class="step-num">Step 4</div>
+          <div class="step-info">
+            <div class="step-title">Apply Bilinear Transformation (BLT)</div>
+            <div class="step-desc">Substitute $s = \frac{2}{T_s} \frac{1 - z^{-1}}{1 + z^{-1}}$ into $H_a(s)$ to obtain final discrete filter $H(z)$.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 11 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 7.3: Bilinear Transformation Design of a Butterworth Lowpass Filter</div>
+      <p><strong>Problem Statement:</strong> Design a discrete-time lowpass filter meeting the specifications:<br>
+      - Passband edge: $\omega_p = 0.2\pi$, Passband ripple $\le 1\text{ dB}$ ($\delta_1 = 0.89125$)<br>
+      - Stopband edge: $\omega_s = 0.3\pi$, Stopband attenuation $\ge 15\text{ dB}$ ($\delta_2 = 0.17783$)<br>
+      Use Bilinear Transformation with $T_s = 1$.</p>
+      <p><strong>Solution:</strong><br>
+      1. <strong>Pre-warp frequencies (Oppenheim Eq 7.21):</strong>
+      $$\Omega_p = \frac{2}{1} \tan\left(\frac{0.2\pi}{2}\right) = 2 \tan(0.1\pi) = 0.6498\text{ rad/s}$$
+      $$\Omega_s = \frac{2}{1} \tan\left(\frac{0.3\pi}{2}\right) = 2 \tan(0.15\pi) = 1.0191\text{ rad/s}$$
+      2. <strong>Determine Butterworth Filter Order $N$:</strong>
+      $$N \ge \frac{\log_{10}\left( \frac{10^{A_s/10} - 1}{10^{R_p/10} - 1} \right)}{2 \log_{10}(\Omega_s / \Omega_p)} = \frac{\log_{10}\left( \frac{10^{1.5} - 1}{10^{0.1} - 1} \right)}{2 \log_{10}(1.0191 / 0.6498)} = \frac{\log_{10}(30.62 / 0.2589)}{2 \log_{10}(1.568)} = \frac{2.073}{0.3908} = 5.30 \implies \mathbf{N = 6}$$
+      3. Compute 6 analog Butterworth poles in left-half $s$-plane distributed symmetrically on circle of radius $\Omega_c$.<br>
+      4. Map each pole via $s_k \to z_k = \frac{1 + s_k/2}{1 - s_k/2}$. Group complex conjugate pairs into 3 second-order cascade sections.</p>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 14 -->
+<details class="module-card" id="_mod14_fir_design">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 7.5 - 7.8</span> Module 14: FIR Filter Design: Windowing Method & Parks-McClellan Optimal Remez</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>14.1 FIR Design by Windowing</h3>
+    <p>Truncates ideal infinite impulse response $h_d[n] = \frac{\sin(\omega_c (n - M/2))}{\pi (n - M/2)}$ by multiplying with a finite window $w[n]$:</p>
+    $$h[n] = h_d[n] \cdot w[n]$$
+
+    <!-- MODULE 14 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚙️ Parks-McClellan Remez Exchange Iterative Optimization Loop (Figure 7.28)</div>
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-num">Phase 1</div>
+          <div class="step-info">
+            <div class="step-title">Initialize Extremal Frequency Grid</div>
+            <div class="step-desc">Select initial set of $r = M/2 + 2$ frequencies in passband and stopband.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Phase 2</div>
+          <div class="step-info">
+            <div class="step-title">Solve Linear System for Equiripple Peak Error δ</div>
+            <div class="step-desc">Compute polynomial coefficients such that approximation error alternates signs $\pm \delta$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">Phase 3</div>
+          <div class="step-info">
+            <div class="step-title">Remez Exchange Iteration</div>
+            <div class="step-desc">Evaluate error curve over dense grid. If local extrema differ from grid, exchange frequencies and repeat until convergence.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORKED EXAMPLE 12 -->
+    <div class="example-box">
+      <div class="example-title">📖 Oppenheim Worked Example 7.5: FIR Lowpass Filter Design by Kaiser Window</div>
+      <p><strong>Problem Statement:</strong> Design a linear-phase FIR lowpass filter using the Kaiser window to meet the specifications:<br>
+      - Passband cutoff: $\omega_p = 0.4\pi$, Stopband cutoff: $\omega_s = 0.6\pi$<br>
+      - Passband ripple $\delta_1 = 0.01$, Stopband ripple $\delta_2 = 0.001$</p>
+      <p><strong>Solution:</strong><br>
+      1. Determine peak stopband attenuation $A$:
+      $$A = -20 \log_{10}(\min(\delta_1, \delta_2)) = -20 \log_{10}(0.001) = 60\text{ dB}$$
+      2. Compute Kaiser shape parameter $\beta$ using Kaiser’s empirical formula (Oppenheim Eq 7.64):
+      $$\beta = 0.1102(A - 8.7) = 0.1102(60 - 8.7) = 0.1102(51.3) = \mathbf{5.653}$$
+      3. Compute filter order $M$ from transition bandwidth $\Delta\omega = 0.6\pi - 0.4\pi = 0.2\pi$:
+      $$M \approx \frac{A - 8}{2.285 \Delta\omega} = \frac{60 - 8}{2.285 (0.2\pi)} = \frac{52}{1.4357} \approx 36.2 \implies \mathbf{M = 37} \text{ (Filter length } N = 38)$$
+      4. Ideal cutoff frequency is midpoint of transition band: $\omega_c = \frac{\omega_p + \omega_s}{2} = 0.5\pi$.<br>
+      5. Final filter taps: $h[n] = \frac{\sin(0.5\pi (n - 18.5))}{\pi (n - 18.5)} \cdot \frac{I_0\left(5.653 \sqrt{1 - \left(\frac{n - 18.5}{18.5}\right)^2}\right)}{I_0(5.653)}$.</p>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART VII: MATHWORKS EDG PRACTICE                         -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part7_mathworks_edg">Part VII: MathWorks EDG Implementation, MATLAB & C/DSA</h2>
+<div class="sectionbody">
+
+<!-- MODULE 15 -->
+<details class="module-card" id="_mod15_matlab_toolbox">
+  <summary class="module-summary">
+    <div><span class="module-badge">MATLAB Mastery</span> Module 15: MATLAB Signal Processing Toolbox & Streaming Algorithms</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>15.1 Vectorization Patterns Expected at MathWorks</h3>
+    <pre><code>% In-place sliding moving average using cumulative sums (O(1) execution!)
+function y = fast_movavg(x, N)
+    cs = cumsum([0, x(:).']);
+    y = (cs(N+1:end) - cs(1:end-N)) / N;
+end</code></pre>
+
+    <!-- MODULE 15 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🔀 MATLAB Filtering Choice Architecture: Causal vs. Zero-Phase</div>
+      <div class="svg-diagram-card">
+        <svg width="600" height="120" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="30" y="25" width="130" height="70" rx="4" fill="#f8fafc" stroke="#2c3e50"/>
+          <text x="95" y="50" font-size="11" font-weight="bold" text-anchor="middle">Input x[n]</text>
+          <text x="95" y="70" font-size="10" text-anchor="middle">Signal Array</text>
+          <line x1="160" y1="40" x2="240" y2="40" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="200" y="32" font-size="9" fill="#0284c7" text-anchor="middle">Real-Time</text>
+          <rect x="240" y="20" width="160" height="40" rx="4" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="320" y="44" font-size="11" font-weight="bold" text-anchor="middle">filter(b, a, x)</text>
+          <line x1="160" y1="80" x2="240" y2="80" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="200" y="75" font-size="9" fill="#ba3925" text-anchor="middle">Offline</text>
+          <rect x="240" y="65" width="160" height="40" rx="4" fill="#f8fafc" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="320" y="89" font-size="11" font-weight="bold" text-anchor="middle">filtfilt(b, a, x)</text>
+          <line x1="400" y1="40" x2="480" y2="40" stroke="#0284c7" stroke-width="1.5"/>
+          <text x="530" y="44" font-size="11" fill="#475569">Delay τg(ω)</text>
+          <line x1="400" y1="85" x2="480" y2="85" stroke="#ba3925" stroke-width="1.5"/>
+          <text x="535" y="89" font-size="11" font-weight="bold" fill="#ba3925">Zero Phase! (0 delay)</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 15.1: filter vs filtfilt. Live streaming requires causal filter(b,a,x); offline post-processing uses filtfilt for zero phase distortion.</div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 16 -->
+<details class="module-card" id="_mod16_c_dsp_dsa">
+  <summary class="module-summary">
+    <div><span class="module-badge">C Systems & DSA</span> Module 16: C Memory Architecture, Circular Buffers & LeetCode DSA</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>16.1 O(1) Circular Buffer for Streaming DSP in C</h3>
+    <pre><code>#include &lt;stdlib.h&gt;
+#include &lt;stdbool.h&gt;
+
+typedef struct {
+    float *buffer;
+    size_t capacity;
+    size_t head;
+    size_t count;
+    double running_sum;
+} RingBufferFilter;
+
+RingBufferFilter* ring_init(size_t window_size) {
+    RingBufferFilter *f = (RingBufferFilter *)malloc(sizeof(RingBufferFilter));
+    if (!f) return NULL;
+    f->buffer = (float *)calloc(window_size, sizeof(float));
+    if (!f->buffer) { free(f); return NULL; }
+    f->capacity = window_size;
+    f->head = 0;
+    f->count = 0;
+    f->running_sum = 0.0;
+    return f;
+}
+
+float ring_process(RingBufferFilter *f, float sample) {
+    f->running_sum -= f->buffer[f->head];      // Subtract oldest sample
+    f->buffer[f->head] = sample;               // Insert new sample
+    f->running_sum += sample;
+    
+    // Power of 2 bitwise modulo optimization:
+    f->head = (f->head + 1) % f->capacity;
+    if (f->count < f->capacity) f->count++;
+    return (float)(f->running_sum / f->count);
+}</code></pre>
+
+    <!-- MODULE 16 FLOW DIAGRAM -->
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">🔄 Circular Ring Buffer Memory Pointer Wrap-Around</div>
+      <div class="svg-diagram-card">
+        <svg width="550" height="110" viewBox="0 0 550 110" xmlns="http://www.w3.org/2000/svg">
+          <g transform="translate(60, 30)">
+            <rect x="0" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="22" y="27" font-size="11" text-anchor="middle">s[0]</text>
+            <rect x="55" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="77" y="27" font-size="11" text-anchor="middle">s[1]</text>
+            <rect x="110" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="132" y="27" font-size="11" text-anchor="middle">s[2]</text>
+            <rect x="165" y="0" width="45" height="45" fill="#fed7aa" stroke="#c2410c" stroke-width="2" rx="3"/>
+            <text x="187" y="27" font-size="11" font-weight="bold" fill="#c2410c" text-anchor="middle">head</text>
+            <rect x="220" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="242" y="27" font-size="11" text-anchor="middle">s[4]</text>
+            <rect x="275" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="297" y="27" font-size="11" text-anchor="middle">s[5]</text>
+            <rect x="330" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="352" y="27" font-size="11" text-anchor="middle">s[6]</text>
+            <rect x="385" y="0" width="45" height="45" fill="#f8fafc" stroke="#2c3e50" rx="3"/>
+            <text x="407" y="27" font-size="11" text-anchor="middle">s[7]</text>
+          </g>
+          <text x="275" y="98" font-size="11" fill="#64748b" text-anchor="middle">Next write: head = (head + 1) % capacity. If power of 2: head = (head + 1) & (capacity - 1)</text>
+        </svg>
+        <div class="svg-diagram-caption">Figure 16.1: Zero-copy ring buffer. New sample overwrites oldest sample in-place without memory movement.</div>
+      </div>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 17 -->
+<details class="module-card" id="_mod17_mock_interviews">
+  <summary class="module-summary">
+    <div><span class="module-badge">Mock Screening</span> Module 17: MathWorks Mock Technical Interview Question Bank</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>17.1 Real MathWorks EDG Screening Questions</h3>
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+      <p style="font-weight: bold; color: #1e293b; margin-top: 0;">Q1: Multi-Tone Sampling & Aliasing</p>
+      <p>Given $x(t) = 3\cos(600\pi t) + 2\cos(1800\pi t) + \sin(3000\pi t)$ sampled at $f_s = 1200\text{ Hz}$: What is the Nyquist rate, and what discrete frequencies appear in the sampled signal?</p>
+      <p style="color: #64748b; font-size: 13.5px;"><strong>Model Answer:</strong> Frequencies are $300\text{ Hz}$, $900\text{ Hz}$, and $1500\text{ Hz}$. Nyquist rate $2 f_{\max} = 3000\text{ Hz}$. Folding limit is $f_s/2 = 600\text{ Hz}$. $300\text{ Hz}$ remains at $300\text{ Hz}$; $900\text{ Hz}$ aliases to $|900 - 1200| = 300\text{ Hz}$; $1500\text{ Hz}$ aliases to $|1500 - 1200| = 300\text{ Hz}$. All three tones collapse into the single alias frequency of $300\text{ Hz}$!</p>
+    </div>
+
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px;">
+      <p style="font-weight: bold; color: #1e293b; margin-top: 0;">Q2: Why does MATLAB <code>filter</code> implement Direct Form II Transposed?</p>
+      <p style="color: #64748b; font-size: 13.5px;"><strong>Model Answer:</strong> It uses canonical $\max(M, N)$ delay elements, sums multiplications directly into delay registers (optimal for hardware FMA instructions), eliminates internal summing node overflow inherent to standard Direct Form II, and achieves superior fixed-point round-off noise performance.</p>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+</div>
+
+<div id="footer">
+<div id="footer-text">
+Oppenheim DSP Master Reference • Prepared for MathWorks EDG Candidates • Ready for GitHub Pages
+</div>
+</div>
+
+</body>
+</html>
+"""
+
+with open('/home/jaswanth/mathworks_intrevPrep/index.html', 'w', encoding='utf-8') as f:
+    f.write(html)
+
+print("index.html rewritten successfully with worked examples and exercise problems!")
