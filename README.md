@@ -1,5 +1,8 @@
 # MathWorks EDG Interview Preparation Kit: Signal Processing Track
 
+> 🌐 **Live Interactive Portal (GitHub Pages):** [https://jaswanth-coder.github.io/mathworks-edg-signal-processing/](https://jaswanth-coder.github.io/mathworks-edg-signal-processing/)  
+> 📦 **GitHub Repository:** [https://github.com/jaswanth-coder/mathworks-edg-signal-processing](https://github.com/jaswanth-coder/mathworks-edg-signal-processing)
+
 Comprehensive preparation and revision package for the **MathWorks Engineering Development Group (EDG) — Signal Processing Track**.
 
 ---
