@@ -1,752 +1,1399 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MathWorks EDG Interview Prep | Signal Processing, MATLAB & C/DSA</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-  <style>
-    :root {
-      --bg: #0b0f19;
-      --surface: #111827;
-      --surface-border: #1f2937;
-      --surface-hover: #1e293b;
-      --primary: #38bdf8;
-      --primary-glow: rgba(56, 189, 248, 0.18);
-      --accent-mathworks: #0076a8;
-      --accent-orange: #f97316;
-      --accent-green: #10b981;
-      --accent-purple: #a855f7;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --code-bg: #090d16;
-      --code-border: #1e293b;
-      --tag-bg: rgba(56, 189, 248, 0.12);
-      --tag-text: #38bdf8;
-    }
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.26">
+<title>Oppenheim DSP Master Reference • Discrete-Time Signals to Filter Design</title>
+<style>
 
-    [data-theme="light"] {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --surface-border: #e2e8f0;
-      --surface-hover: #f1f5f9;
-      --primary: #0284c7;
-      --primary-glow: rgba(2, 132, 199, 0.12);
-      --accent-mathworks: #005a82;
-      --accent-orange: #ea580c;
-      --accent-green: #059669;
-      --accent-purple: #9333ea;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --code-bg: #f1f5f9;
-      --code-border: #cbd5e1;
-      --tag-bg: rgba(2, 132, 199, 0.1);
-      --tag-text: #0284c7;
-    }
+/* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+@import url("//fonts.googleapis.com/css?family=Noto+Sans:300,600italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700");
+@import url("https://cdn.jsdelivr.net/gh/asciidoctor/asciidoctor@2.0/data/stylesheets/asciidoctor-default.css");
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      transition: background 0.3s ease, color 0.3s ease;
-    }
+/* CUSTOMISATIONS MATCHING IIT MADRAS EE5120 LSE */
+:root {
+  --maincolor: #FFFFFF;
+  --primarycolor: #2c3e50;
+  --secondarycolor: #ba3925;
+  --tertiarycolor: #186d7a;
+  --sidebarbackground: #CCC;
+  --linkcolor: #b71c1c;
+  --linkcoloralternate: #f44336;
+  --white: #FFFFFF;
+  --black: #000000;
+}
 
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      background: rgba(17, 24, 39, 0.85);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--surface-border);
-      padding: 0.75rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    [data-theme="light"] header {
-      background: rgba(255, 255, 255, 0.9);
-    }
+/* Text styles */
+h1 { color: var(--primarycolor) !important; font-size: 1.85em; line-height: 1.25; }
+#header > h1 { font-size: 1.85em; }
+h2, h3, h4, h5, h6 { color: var(--secondarycolor) !important; }
+h2 { font-size: 1.4em; line-height: 1.3; margin-top: 1.6em; border-bottom: 2px solid #e1e4e8; padding-bottom: 6px; }
+h3, .sidebarblock > .content > .title { font-size: 1.18em; margin-top: 1.2em; }
+h4, h5 { font-size: 1.05em; }
+h6 { font-size: 1em; }
+#toctitle, #toc.toc2 #toctitle { font-size: 1.1em; color: var(--primarycolor) !important; }
+#toc a { font-size: 0.92em; color: var(--linkcolor) !important; text-decoration: none; }
+#toc a:hover { color: var(--linkcoloralternate) !important; text-decoration: underline; }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .brand-logo {
-      width: 36px;
-      height: 36px;
-      background: linear-gradient(135deg, #0076a8, #f97316);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 800;
-      color: white;
-      font-size: 1.1rem;
-      box-shadow: 0 0 15px rgba(0, 118, 168, 0.4);
-    }
-    .brand-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-    .brand-subtitle {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
+.title { color: var(--tertiarycolor) !important; font-family: "Noto Sans", sans-serif !important; font-style: normal !important; font-weight: normal !important; }
+p, li, td { font-family: "Noto Sans", sans-serif !important; font-size: 14px; line-height: 1.6; }
+th { font-family: "Noto Sans", sans-serif !important; background-color: #f5f5f5; }
 
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .search-input {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      color: var(--text);
-      padding: 0.45rem 0.9rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      outline: none;
-      width: 200px;
-      transition: width 0.2s, border-color 0.2s;
-    }
-    .search-input:focus {
-      border-color: var(--primary);
-      width: 260px;
-    }
-    .btn {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      color: var(--text);
-      padding: 0.45rem 0.85rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      transition: all 0.2s ease;
-    }
-    .btn:hover {
-      background: var(--surface-hover);
-      border-color: var(--primary);
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: #0b0f19;
-      border-color: var(--primary);
-    }
-    .btn-primary:hover {
-      background: #7dd3fc;
-    }
+/* Links */
+a { color: var(--linkcolor); }
+a:hover { color: var(--linkcoloralternate); }
 
-    /* Tab Navigation */
-    .nav-tabs {
-      display: flex;
-      background: var(--surface);
-      border-bottom: 1px solid var(--surface-border);
-      padding: 0.5rem 2rem 0;
-      overflow-x: auto;
-      gap: 0.5rem;
-    }
-    .tab-btn {
-      padding: 0.75rem 1.25rem;
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.92rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-    }
-    .tab-btn:hover {
-      color: var(--text);
-    }
-    .tab-btn.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-      background: var(--primary-glow);
-      border-top-left-radius: 6px;
-      border-top-right-radius: 6px;
-    }
-    .tab-badge {
-      background: var(--tag-bg);
-      color: var(--tag-text);
-      font-size: 0.72rem;
-      padding: 0.15rem 0.45rem;
-      border-radius: 9999px;
-    }
+/* Monospace & Code */
+code, pre, tt {
+  font-family: "Droid Sans Mono", "Inconsolata", monospace;
+}
+pre {
+  font-size: 12.8px;
+  line-height: 1.45;
+  background-color: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  padding: 0.85em 1.1em;
+  overflow-x: auto;
+}
 
-    /* Main Container */
-    .container {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
+/* Tables */
+table.tableblock {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.2em 0;
+  font-size: 13px;
+}
+table.tableblock th, table.tableblock td {
+  border: 1px solid #d0d7de;
+  padding: 8px 12px;
+}
+table.tableblock th {
+  background-color: #f6f8fa;
+  font-weight: 600;
+  color: #24292f;
+}
 
-    .tab-content {
-      display: none;
-      animation: fadeIn 0.25s ease;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+/* Admonition Blocks */
+.admonitionblock {
+  margin: 1.2em 0;
+}
+.admonitionblock > table {
+  border-collapse: collapse;
+  width: 100%;
+  background-color: #fafafa;
+}
+.admonitionblock > table td.icon {
+  width: 90px;
+  text-align: center;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.82em;
+  letter-spacing: 0.05em;
+}
+.admonitionblock > table td.content {
+  padding: 0.8em 1.2em;
+  border-left: 3px solid #ddd;
+}
+.admonitionblock.note > table td.icon .title      { color: #19407c; }
+.admonitionblock.tip > table td.icon .title       { color: #4a7a15; }
+.admonitionblock.important > table td.icon .title { color: #bf0000; }
+.admonitionblock.warning > table td.icon .title   { color: #bf6900; }
 
-    /* Cards & Layout */
-    .hero-banner {
-      background: linear-gradient(135deg, rgba(0, 118, 168, 0.15), rgba(249, 115, 22, 0.15));
-      border: 1px solid var(--surface-border);
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-    }
-    .hero-title {
-      font-size: 1.8rem;
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(90deg, var(--primary), var(--accent-orange));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero-subtitle {
-      color: var(--text-muted);
-      font-size: 0.98rem;
-      max-width: 800px;
-    }
+.admonitionblock.note > table td.content { border-left-color: #19407c; background-color: #f0f4f8; }
+.admonitionblock.tip > table td.content { border-left-color: #4a7a15; background-color: #f4f8f0; }
+.admonitionblock.important > table td.content { border-left-color: #bf0000; background-color: #fdf2f2; }
+.admonitionblock.warning > table td.content { border-left-color: #bf6900; background-color: #fdf8f0; }
 
-    .grid-2 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
-      margin-bottom: 2rem;
-    }
+/* MODULE-LEVEL DROP DOWN CARDS */
+details.module-card {
+  margin: 20px 0;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+details.module-card[open] {
+  border-color: #ba3925;
+  box-shadow: 0 4px 16px rgba(186, 57, 37, 0.09);
+}
+details.module-card summary.module-summary {
+  padding: 14px 20px;
+  background-color: #f8fafc;
+  cursor: pointer;
+  font-weight: 700;
+  font-family: "Open Sans", "Noto Sans", sans-serif;
+  color: #2c3e50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  outline: none;
+  font-size: 16px;
+  border-bottom: 1px solid transparent;
+}
+details.module-card summary.module-summary:hover {
+  background-color: #f1f5f9;
+  color: #ba3925;
+}
+details.module-card[open] summary.module-summary {
+  background-color: #fff9f8;
+  border-bottom: 2px solid #f3dcd7;
+  color: #ba3925;
+}
+.module-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: 4px;
+  background: #e2e8f0;
+  color: #334155;
+  margin-right: 12px;
+}
+details.module-card[open] .module-badge {
+  background: #ffedd5;
+  color: #c2410c;
+}
+.module-body {
+  padding: 24px 28px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #1e293b;
+}
 
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 10px;
-      padding: 1.5rem;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .card:hover {
-      border-color: rgba(56, 189, 248, 0.4);
-    }
-    .card-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-    }
-    .card-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+/* FLOWCHARTS & DIAGRAMS STYLING */
+.flow-diagram-container {
+  margin: 24px 0;
+  padding: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+.flow-diagram-title {
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #475569;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-    /* Section Styles */
-    .section-title {
-      font-size: 1.45rem;
-      font-weight: 700;
-      margin: 2rem 0 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--surface-border);
-    }
-    .section-title::before {
-      content: "";
-      width: 4px;
-      height: 1.2rem;
-      background: var(--primary);
-      border-radius: 2px;
-      display: inline-block;
-    }
+/* 7-Step Pipeline Grid */
+.pipeline-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pipeline-step {
+  display: flex;
+  align-items: stretch;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.step-num {
+  background: #2c3e50;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 14px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pipeline-step.active .step-num {
+  background: #ba3925;
+}
+.step-info {
+  padding: 10px 14px;
+  flex: 1;
+}
+.step-title {
+  font-weight: 700;
+  font-size: 13.5px;
+  color: #1e293b;
+}
+.step-desc {
+  font-size: 12.5px;
+  color: #64748b;
+  margin-top: 2px;
+}
+.step-code {
+  font-family: "Droid Sans Mono", monospace;
+  font-size: 12px;
+  background: #f1f5f9;
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: #ba3925;
+}
 
-    /* Code Snippets */
-    pre {
-      background: var(--code-bg);
-      border: 1px solid var(--code-border);
-      border-radius: 8px;
-      padding: 1rem;
-      overflow-x: auto;
-      font-family: 'Fira Code', monospace;
-      font-size: 0.86rem;
-      margin: 1rem 0;
-      position: relative;
-    }
-    code {
-      font-family: 'Fira Code', monospace;
-      font-size: 0.88em;
-      background: var(--code-bg);
-      padding: 0.15rem 0.35rem;
-      border-radius: 4px;
-      border: 1px solid var(--code-border);
-    }
-    pre code {
-      background: transparent;
-      padding: 0;
-      border: none;
-    }
-    .copy-btn {
-      position: absolute;
-      top: 0.5rem;
-      right: 0.5rem;
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      color: var(--text-muted);
-      border-radius: 4px;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-      cursor: pointer;
-    }
-    .copy-btn:hover {
-      color: var(--primary);
-      border-color: var(--primary);
-    }
+/* Visual Topology Box */
+.topology-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 20px 0;
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.node-card {
+  flex: 1;
+  background: #f8fafc;
+  border: 2px solid #3b82f6;
+  border-radius: 6px;
+  padding: 14px;
+  text-align: center;
+}
+.node-card.server {
+  border-color: #10b981;
+}
+.node-card h5 {
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+.node-card .node-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 3px;
+  background: #e2e8f0;
+  color: #334155;
+  margin-bottom: 6px;
+}
+.node-card .node-spec {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.4;
+}
+.channel-link {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.channel-line {
+  width: 100%;
+  height: 4px;
+  background: #64748b;
+  position: relative;
+  margin: 12px 0;
+}
+.channel-line::before, .channel-line::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+}
+.channel-line::before {
+  left: 0;
+  border-right: 8px solid #64748b;
+}
+.channel-line::after {
+  right: 0;
+  border-left: 8px solid #64748b;
+}
+.channel-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ba3925;
+}
+.channel-sub {
+  font-size: 11px;
+  color: #64748b;
+}
 
-    /* Tables */
-    .table-container {
-      overflow-x: auto;
-      margin: 1.25rem 0;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-      text-align: left;
-    }
-    th, td {
-      padding: 0.75rem 1rem;
-      border: 1px solid var(--surface-border);
-    }
-    th {
-      background: var(--surface-hover);
-      font-weight: 600;
-      color: var(--primary);
-    }
-    tr:hover td {
-      background: rgba(56, 189, 248, 0.04);
-    }
+/* Line-by-line Code Breakdown Box */
+.code-explanation-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  font-size: 13px;
+}
+.code-explanation-table th {
+  background: #2c3e50;
+  color: #ffffff;
+  padding: 10px 14px;
+  text-align: left;
+}
+.code-explanation-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+.code-explanation-table tr:hover td {
+  background: #f8fafc;
+}
+.code-col {
+  width: 32%;
+  font-family: "Droid Sans Mono", monospace;
+  font-size: 12.5px;
+  color: #0f172a;
+  background: #f8fafc;
+  border-right: 1px solid #e2e8f0;
+}
+.desc-col {
+  width: 68%;
+  line-height: 1.55;
+  color: #334155;
+}
+.desc-col strong {
+  color: #ba3925;
+}
 
-    /* Callout & Alerts */
-    .callout {
-      border-left: 4px solid var(--primary);
-      background: var(--primary-glow);
-      padding: 1rem 1.25rem;
-      border-radius: 0 8px 8px 0;
-      margin: 1.25rem 0;
-    }
-    .callout.warning {
-      border-left-color: var(--accent-orange);
-      background: rgba(249, 115, 22, 0.1);
-    }
-    .callout.success {
-      border-left-color: var(--accent-green);
-      background: rgba(16, 185, 129, 0.1);
-    }
-    .callout-title {
-      font-weight: 700;
-      margin-bottom: 0.25rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+/* Global Controls Toolbar */
+.toolbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 10px 16px;
+  margin: 18px 0;
+}
+.toolbar-btn-group {
+  display: flex;
+  gap: 8px;
+}
+.tool-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.tool-btn:hover {
+  background: #f1f5f9;
+  border-color: #ba3925;
+  color: #ba3925;
+}
+.tool-btn-primary {
+  background: #ba3925;
+  color: #ffffff;
+  border-color: #ba3925;
+}
+.tool-btn-primary:hover {
+  background: #9c2f1e;
+  color: #ffffff;
+}
 
-    /* Collapsible Mock Question Accordions */
-    .qa-box {
-      background: var(--surface);
-      border: 1px solid var(--surface-border);
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      overflow: hidden;
-      transition: border-color 0.2s;
-    }
-    .qa-header {
-      padding: 1rem 1.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      user-select: none;
-      background: var(--surface);
-    }
-    .qa-header:hover {
-      background: var(--surface-hover);
-    }
-    .qa-title {
-      font-weight: 600;
-      font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-    .qa-badge {
-      font-size: 0.72rem;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge-dsp { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
-    .badge-matlab { background: rgba(249, 115, 22, 0.15); color: #f97316; }
-    .badge-c { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-    .qa-body {
-      padding: 1.25rem;
-      border-top: 1px solid var(--surface-border);
-      display: none;
-      background: rgba(9, 13, 22, 0.4);
-    }
-    [data-theme="light"] .qa-body {
-      background: #fafafa;
-    }
-    .qa-body.open {
-      display: block;
-    }
+@media all and (max-width: 600px) {
+  .topology-box {
+    flex-direction: column;
+  }
+  .channel-line {
+    width: 4px;
+    height: 40px;
+    margin: 8px 0;
+  }
+}
 
-    /* SVG Diagram Styling */
-    .diagram-container {
-      background: var(--code-bg);
-      border: 1px solid var(--code-border);
-      border-radius: 8px;
-      padding: 1.5rem;
-      margin: 1.5rem 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .diagram-caption {
-      margin-top: 0.75rem;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      text-align: center;
-    }
 
-    /* Print / PDF Styling */
-    @media print {
-      header, .nav-tabs, .header-actions, .copy-btn { display: none !important; }
-      body { background: white !important; color: black !important; }
-      .container { max-width: 100% !important; padding: 0 !important; }
-      .tab-content { display: block !important; page-break-after: always; }
-      .qa-body { display: block !important; }
-      pre, code { border: 1px solid #ddd !important; background: #f9f9f9 !important; color: #222 !important; }
-      .card { border: 1px solid #ccc !important; break-inside: avoid; }
+/* Extra polishing for Print / PDF export and MathJax */
+@media print {
+  #toc.toc2 { display: none !important; }
+  #content { margin-left: 0 !important; width: 100% !important; }
+  .toolbar-container { display: none !important; }
+  details.module-card { border: 1px solid #ccc !important; break-inside: avoid; }
+  details.module-card:not([open]) { display: block !important; }
+  .module-body { display: block !important; }
+}
+
+.search-box-container {
+  margin-top: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.search-input-field {
+  padding: 6px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 13px;
+  width: 280px;
+  outline: none;
+}
+.search-input-field:focus {
+  border-color: #ba3925;
+}
+</style>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"], ["$", "$"]],
+    displayMath: [["\\[", "\\]"], ["$$", "$$"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script>
+function expandAll() {
+  document.querySelectorAll('details.module-card').forEach(d => d.open = true);
+}
+function collapseAll() {
+  document.querySelectorAll('details.module-card').forEach(d => d.open = false);
+}
+function filterModules(query) {
+  const q = query.toLowerCase().trim();
+  document.querySelectorAll('details.module-card').forEach(card => {
+    if (!q) {
+      card.style.display = '';
+      return;
     }
-  </style>
+    const text = card.innerText.toLowerCase();
+    card.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+</script>
 </head>
-<body>
+<body class="article toc2 toc-left">
 
-  <!-- Top Sticky Navigation Bar -->
-  <header>
-    <div class="brand">
-      <div class="brand-logo">MW</div>
-      <div>
-        <div class="brand-title">MathWorks EDG Prep · Signal Processing Track</div>
-        <div class="brand-subtitle">DSP Theory · MATLAB Toolbox & Algorithms · C Programming & DSA</div>
+<div id="header">
+<h1>Oppenheim DSP Master Reference & Technical Guide</h1>
+<div class="details">
+<span id="author" class="author">Discrete-Time Signals, Systems, Transforms & Filter Design • Tailored for MathWorks EDG Track</span><br>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_part1_signals_systems"><strong>Part I: Discrete-Time Signals & Systems (Ch. 2)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod1_dt_signals">Module 1: Signals, Basic Sequences & Discrete Sinusoids</a></li>
+<li><a href="#_mod2_lti_systems">Module 2: Discrete-Time Systems, Linearity & Convolution</a></li>
+<li><a href="#_mod3_dtft_theorems">Module 3: Frequency-Domain Analysis, DTFT & Theorems</a></li>
+</ul>
+</li>
+<li><a href="#_part2_z_transform"><strong>Part II: The z-Transform & System Functions (Ch. 3)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod4_z_transform_roc">Module 4: The z-Transform, ROC Properties & Inversion</a></li>
+<li><a href="#_mod5_z_lti_systems">Module 5: Transfer Functions, Difference Equations & Causality</a></li>
+</ul>
+</li>
+<li><a href="#_part3_sampling_multirate"><strong>Part III: Sampling of Continuous-Time Signals & Multirate (Ch. 4)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod6_sampling_aliasing">Module 6: Periodic Sampling, Aliasing & Sinc Reconstruction</a></li>
+<li><a href="#_mod7_multirate_dsp">Module 7: Multirate Signal Processing, Decimation & Polyphase</a></li>
+<li><a href="#_mod8_quantization_noise">Module 8: A/D Conversion, Quantization Noise & Noise Shaping</a></li>
+</ul>
+</li>
+<li><a href="#_part4_transform_analysis"><strong>Part IV: Transform Analysis of LTI Systems (Ch. 5)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod9_frequency_response_phase">Module 9: Frequency Response, Phase & Group Delay Distortion</a></li>
+<li><a href="#_mod10_allpass_minphase">Module 10: Allpass Systems, Minimum-Phase & Linear-Phase FIR</a></li>
+</ul>
+</li>
+<li><a href="#_part5_filter_structures"><strong>Part V: Structures for Discrete-Time Systems (Ch. 6)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod11_filter_structures">Module 11: IIR & FIR Filter Realizations (Direct Form II Transposed)</a></li>
+<li><a href="#_mod12_finite_wordlength">Module 12: Finite-Precision Numerical Effects & Limit Cycles</a></li>
+</ul>
+</li>
+<li><a href="#_part6_filter_design"><strong>Part VI: Filter Design Techniques (Ch. 7)</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod13_iir_design">Module 13: IIR Filter Design: Impulse Invariance & Bilinear Transform</a></li>
+<li><a href="#_mod14_fir_design">Module 14: FIR Filter Design: Windowing & Parks-McClellan Remez</a></li>
+</ul>
+</li>
+<li><a href="#_part7_mathworks_edg"><strong>Part VII: MathWorks EDG Systems, MATLAB & C/DSA</strong></a>
+<ul class="sectlevel2">
+<li><a href="#_mod15_matlab_toolbox">Module 15: MATLAB Signal Processing Toolbox & Streaming Algorithms</a></li>
+<li><a href="#_mod16_c_dsp_dsa">Module 16: C Memory Architecture, Circular Buffers & LeetCode DSA</a></li>
+<li><a href="#_mod17_mock_interviews">Module 17: MathWorks Mock Technical Interview Question Bank</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="content">
+
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>Welcome to the <strong>Oppenheim DSP Master Reference & MathWorks EDG Preparation Portal</strong>. This guide systematically walks through every foundational concept from the index of <em>Alan V. Oppenheim & Ronald W. Schafer’s Discrete-Time Signal Processing</em> up to <strong>Filter Design Techniques (Chapters 2 through 7)</strong>, complemented with production-grade <strong>MATLAB Signal Processing Toolbox idioms</strong>, <strong>C programming memory architectures</strong>, and <strong>real MathWorks technical interview problems</strong>.</p>
+</div>
+
+<div class="toolbar-container">
+  <div style="font-size: 13px; color: #475569; font-weight: 500;">
+    💡 <strong>Module Navigation:</strong> Expand or collapse complete modules below, or filter by keyword.
+  </div>
+  <div class="toolbar-btn-group">
+    <button class="tool-btn" onclick="expandAll()">Expand All Modules</button>
+    <button class="tool-btn" onclick="collapseAll()">Collapse All</button>
+    <button class="tool-btn tool-btn-primary" onclick="window.print()">Export Full Guide to PDF</button>
+  </div>
+</div>
+
+<div class="search-box-container">
+  <span style="font-size: 13px; font-weight: 600; color: #2c3e50;">🔍 Instant Search:</span>
+  <input type="text" class="search-input-field" placeholder="Filter concepts (e.g., aliasing, bilinear, circular buffer)..." oninput="filterModules(this.value)">
+</div>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART I: DISCRETE-TIME SIGNALS & SYSTEMS                  -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part1_signals_systems">Part I: Discrete-Time Signals & Systems (Oppenheim Chapter 2)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 1 -->
+<details class="module-card" open id="_mod1_dt_signals">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 2.0 - 2.1</span> Module 1: Discrete-Time Signals, Basic Sequences & Discrete Sinusoids</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>1.1 Discrete-Time Representation of Sequences</h3>
+    <p>A discrete-time signal is represented mathematically as a sequence of numbers $x[n]$ defined only for integer values of $n \in (-\infty, \infty)$. Unlike continuous-time functions $x_a(t)$, $x[n]$ is <em>undefined</em> between integer indices.</p>
+
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚡ Fundamental Elementary Sequences</div>
+      <div class="pipeline-grid">
+        <div class="pipeline-step">
+          <div class="step-num">δ[n]</div>
+          <div class="step-info">
+            <div class="step-title">Unit Impulse (Kronecker Delta)</div>
+            <div class="step-desc">$$\delta[n] = egin{cases} 1, & n = 0 \ 0, & n 
+eq 0 \end{cases}$$ Any arbitrary sequence can be decomposed as a linear combination of weighted impulses: $x[n] = \sum_{k=-\infty}^{\infty} x[k] \delta[n-k]$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">u[n]</div>
+          <div class="step-info">
+            <div class="step-title">Unit Step Sequence</div>
+            <div class="step-desc">$$u[n] = egin{cases} 1, & n \ge 0 \ 0, & n < 0 \end{cases}, \quad u[n] = \sum_{k=-\infty}^n \delta[k] = \sum_{k=0}^\infty \delta[n-k]$$ Relationship: $\delta[n] = u[n] - u[n-1]$.</div>
+          </div>
+        </div>
+        <div class="pipeline-step">
+          <div class="step-num">e^jωn</div>
+          <div class="step-info">
+            <div class="step-title">Complex Exponential Sequence</div>
+            <div class="step-desc">$$x[n] = A lpha^n = |A| e^{j\phi} (|lpha| e^{j\omega_0})^n = |A| |lpha|^n e^{j(\omega_0 n + \phi)}$$ If $|lpha| = 1$, $x[n] = e^{j\omega_0 n} = \cos(\omega_0 n) + j\sin(\omega_0 n)$.</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="header-actions">
-      <input type="text" id="filterInput" class="search-input" placeholder="Quick search topics...">
-      <button class="btn" id="themeToggleBtn" title="Toggle Light/Dark Theme">🌓 Theme</button>
-      <button class="btn btn-primary" onclick="window.print()" title="Print full guide or save as PDF">🖨️ Export PDF</button>
+
+    <h3>1.2 Fundamental Differences Between Continuous and Discrete Sinusoids (MathWorks High-Yield)</h3>
+    <p>Oppenheim emphasizes three profound properties that distinguish discrete-time sinusoids $e^{j\omega_0 n}$ from continuous-time $e^{j\Omega_0 t}$:</p>
+
+    <div class="admonitionblock important">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Important</div></td>
+          <td class="content">
+            <strong>1. Frequency Periodicity ($2\pi$):</strong><br>
+            $$e^{j(\omega_0 + 2\pi) n} = e^{j\omega_0 n} \cdot e^{j 2\pi n} = e^{j\omega_0 n} \cdot 1 = e^{j\omega_0 n}$$
+            All discrete frequencies $\omega$ separated by an integer multiple of $2\pi$ are <strong>physically indistinguishable</strong>. We only need to consider frequencies over an interval of length $2\pi$, typically $[-\pi, \pi]$ or $[0, 2\pi]$.<br><br>
+            <strong>2. Highest Rate of Oscillation Occurs at $\omega = \pi$:</strong><br>
+            As $\omega_0$ increases from $0$ to $\pi$, the oscillation rate increases. At $\omega = \pi$, $x[n] = e^{j\pi n} = (-1)^n$, which alternates signs every single sample (highest rate of variation). As $\omega$ increases from $\pi$ to $2\pi$, the apparent rate of oscillation <em>decreases</em> until $\omega = 2\pi$ corresponds back to DC ($\omega = 0$).<br><br>
+            <strong>3. Periodicity of the Sequence in Time:</strong><br>
+            A continuous sinusoid $\cos(\Omega_0 t)$ is <em>always</em> periodic in time for any $\Omega_0$. A discrete sinusoid $\cos(\omega_0 n)$ is periodic in time <strong>if and only if</strong> $\omega_0 / (2\pi)$ is a rational number:
+            $$rac{\omega_0}{2\pi} = rac{k}{N} \implies N = rac{2\pi k}{\omega_0} \in \mathbb{Z}^+$$
+          </td>
+        </tr>
+      </table>
     </div>
-  </header>
+  </div>
+</details>
 
-  <!-- Interactive Navigation Tabs -->
-  <nav class="nav-tabs">
-    <button class="tab-btn active" data-tab="tab-dsp">📡 1. DSP Theory & Math <span class="tab-badge">Core</span></button>
-    <button class="tab-btn" data-tab="tab-matlab">💻 2. MATLAB & Toolboxes <span class="tab-badge">Toolbox</span></button>
-    <button class="tab-btn" data-tab="tab-c-dsa">⚙️ 3. C Programming & DSA <span class="tab-badge">Low-Level</span></button>
-    <button class="tab-btn" data-tab="tab-cheatsheet">⚡ 4. Rapid Cheatsheets <span class="tab-badge">Formulas</span></button>
-    <button class="tab-btn" data-tab="tab-mock">🎯 5. Mock Interview Simulator <span class="tab-badge">Real Q&A</span></button>
-  </nav>
+<!-- MODULE 2 -->
+<details class="module-card" id="_mod2_lti_systems">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 2.2 - 2.5</span> Module 2: Discrete-Time Systems, Linearity, Convolution & LCCDE</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>2.1 System Properties & Classification</h3>
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Property</th>
+          <th>Mathematical Condition</th>
+          <th>LTI Impulse Response $h[n]$ Criterion</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Linearity</strong></td>
+          <td>$\mathcal{T}\{a x_1[n] + b x_2[n]\} = a \mathcal{T}\{x_1[n]\} + b \mathcal{T}\{x_2[n]\}$</td>
+          <td>Satisfied if system consists only of additions, multiplications by constants, and delay elements.</td>
+        </tr>
+        <tr>
+          <td><strong>Time-Invariance</strong></td>
+          <td>If $\mathcal{T}\{x[n]\} = y[n]$, then $\mathcal{T}\{x[n - n_0]\} = y[n - n_0]$</td>
+          <td>Impulse response $h[n]$ must not vary with the time of excitation: $\mathcal{T}\{\delta[n - k]\} = h[n - k]$.</td>
+        </tr>
+        <tr>
+          <td><strong>Causality</strong></td>
+          <td>$y[n_0]$ depends only on $x[n]$ for $n \le n_0$.</td>
+          <td><strong>$h[n] = 0$ for all $n < 0$.</strong></td>
+        </tr>
+        <tr>
+          <td><strong>BIBO Stability</strong></td>
+          <td>If $|x[n]| \le B_x < \infty$, then $|y[n]| \le B_y < \infty$.</td>
+          <td><strong>$S = \sum_{n=-\infty}^{\infty} |h[n]| < \infty$ (Absolutely summable).</strong></td>
+        </tr>
+      </tbody>
+    </table>
 
-  <main class="container">
+    <h3>2.2 The Linear Convolution Sum</h3>
+    <p>By linearity and time-invariance, the response of any LTI system to an arbitrary input $x[n] = \sum_{k=-\infty}^\infty x[k]\delta[n-k]$ is given by the convolution sum:</p>
+    $$y[n] = x[n] * h[n] = \sum_{k=-\infty}^{\infty} x[k] h[n - k] = \sum_{k=-\infty}^{\infty} h[k] x[n - k]$$
 
-    <!-- ==================== TAB 1: DSP THEORY & MATH ==================== -->
-    <section id="tab-dsp" class="tab-content active">
-      <div class="hero-banner">
-        <h1 class="hero-title">1. Digital Signal Processing (DSP) Core Theory</h1>
-        <p class="hero-subtitle">Rigorous breakdown of LTI systems, Sampling, Aliasing, Transforms (DTFT, Z, DFT, FFT), FIR/IIR Filter Design, Multirate Processing, and Spectral Estimation tailored for the MathWorks EDG interview.</p>
-      </div>
+    <div class="admonitionblock tip">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Tip</div></td>
+          <td class="content">
+            <strong>Convolution Length Rule:</strong> If $x[n]$ has length $N_1$ ($n \in [0, N_1-1]$) and $h[n]$ has length $N_2$ ($n \in [0, N_2-1]$), the non-zero duration of $y[n]$ is:
+            $$L_y = N_1 + N_2 - 1$$
+            Interviewers frequently ask this to verify memory preallocation in C or MATLAB!
+          </td>
+        </tr>
+      </table>
+    </div>
 
-      <div class="grid-3">
-        <div class="card">
-          <div class="card-title">🔍 Nyquist & Aliasing</div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin:0.5rem 0;">Sampling at $f_s \ge 2 f_{\max}$ prevents spectral overlap. Apparent folding frequency: $f_{\text{alias}} = |f_0 - k f_s| \le f_s/2$.</p>
+    <h3>2.3 Linear Constant-Coefficient Difference Equations (LCCDE)</h3>
+    <p>An important class of discrete-time LTI systems is described by $N^{	ext{th}}$-order difference equations:</p>
+    $$\sum_{k=0}^N a_k y[n - k] = \sum_{m=0}^M b_m x[n - m], \quad a_0 
+eq 0$$
+    <p>For the system to be linear, time-invariant, and causal, it must satisfy the <strong>condition of initial rest</strong>: if $x[n] = 0$ for $n < n_0$, then $y[n] = 0$ for $n < n_0$.</p>
+  </div>
+</details>
+
+<!-- MODULE 3 -->
+<details class="module-card" id="_mod3_dtft_theorems">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 2.6 - 2.10</span> Module 3: Frequency-Domain Analysis, DTFT & Core Theorems</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>3.1 Eigenfunctions of LTI Systems</h3>
+    <p>When an LTI system with impulse response $h[n]$ is excited by a complex exponential $x[n] = e^{j\omega n}$:</p>
+    $$y[n] = \sum_{k=-\infty}^\infty h[k] e^{j\omega (n - k)} = \left( \sum_{k=-\infty}^\infty h[k] e^{-j\omega k} ight) e^{j\omega n} = H(e^{j\omega}) e^{j\omega n}$$
+    <p>Hence, <strong>complex exponentials are eigenfunctions of LTI systems</strong>, and the eigenvalue $H(e^{j\omega})$ is the <strong>Frequency Response</strong> of the system.</p>
+
+    <h3>3.2 The Discrete-Time Fourier Transform (DTFT)</h3>
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Analysis Equation (Forward DTFT)</th>
+          <th>Synthesis Equation (Inverse DTFT)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>$$X(e^{j\omega}) = \sum_{n=-\infty}^{\infty} x[n] e^{-j\omega n}$$</td>
+          <td>$$x[n] = rac{1}{2\pi} \int_{-\pi}^{\pi} X(e^{j\omega}) e^{j\omega n} d\omega$$</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>3.3 Symmetry Properties for Real Sequences</h3>
+    <p>If $x[n]$ is real-valued, $X(e^{-j\omega}) = X^*(e^{j\omega})$ (Conjugate Symmetry):</p>
+    <ul>
+      <li><strong>Real Part $\operatorname{Re}\{X(e^{j\omega})\}$:</strong> Even function of $\omega$ ($\operatorname{Re}\{X(e^{j\omega})\} = \operatorname{Re}\{X(e^{-j\omega})\}$).</li>
+      <li><strong>Imaginary Part $\operatorname{Im}\{X(e^{j\omega})\}$:</strong> Odd function of $\omega$ ($\operatorname{Im}\{X(e^{j\omega})\} = -\operatorname{Im}\{X(e^{-j\omega})\}$).</li>
+      <li><strong>Magnitude Spectrum $|X(e^{j\omega})|$:</strong> Even function of $\omega$.</li>
+      <li><strong>Phase Spectrum $rg X(e^{j\omega})$:</strong> Odd function of $\omega$.</li>
+    </ul>
+
+    <h3>3.4 Essential DTFT Theorems (Oppenheim Table 2.2)</h3>
+    <div class="pipeline-grid">
+      <div class="pipeline-step">
+        <div class="step-num">T1</div>
+        <div class="step-info">
+          <div class="step-title">Time Shifting & Frequency Shifting</div>
+          <div class="step-desc">$$x[n - n_0] \stackrel{\mathcal{F}}{\longleftrightarrow} e^{-j\omega n_0} X(e^{j\omega}), \quad e^{j\omega_0 n} x[n] \stackrel{\mathcal{F}}{\longleftrightarrow} X(e^{j(\omega - \omega_0)})$$</div>
         </div>
-        <div class="card">
-          <div class="card-title">⚡ FFT Speedup</div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin:0.5rem 0;">Direct DFT requires $O(N^2)$ complex operations. Radix-2 Cooley-Tukey DIT butterfly reduces this to $O(N \log_2 N)$.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">T2</div>
+        <div class="step-info">
+          <div class="step-title">Convolution Theorem</div>
+          <div class="step-desc">$$x[n] * h[n] \stackrel{\mathcal{F}}{\longleftrightarrow} X(e^{j\omega}) \cdot H(e^{j\omega})$$ Convolution in the time domain is equivalent to point-by-point multiplication in the frequency domain.</div>
         </div>
-        <div class="card">
-          <div class="card-title">🎛️ Filter Trade-off</div>
-          <p style="font-size:0.88rem; color:var(--text-muted); margin:0.5rem 0;">FIR guarantees exact linear phase ($\tau_g = M/2$) & stability; IIR achieves steep roll-off at $5\times$ to $10\times$ lower order.</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="step-num">T3</div>
+        <div class="step-info">
+          <div class="step-title">Modulation / Windowing Theorem</div>
+          <div class="step-desc">$$x[n] \cdot w[n] \stackrel{\mathcal{F}}{\longleftrightarrow} rac{1}{2\pi} \int_{-\pi}^{\pi} X(e^{j	heta}) W(e^{j(\omega - 	heta)}) d	heta = rac{1}{2\pi} X(e^{j\omega}) \circledast W(e^{j\omega})$$ Multiplication in time results in periodic circular convolution in frequency (the mathematical source of spectral leakage).</div>
         </div>
       </div>
-
-      <!-- Diagram: Nyquist Sampling & Aliasing -->
-      <div class="diagram-container">
-        <svg width="680" height="220" viewBox="0 0 680 220" xmlns="http://www.w3.org/2000/svg">
-          <!-- Axes -->
-          <line x1="40" y1="170" x2="640" y2="170" stroke="#4b5563" stroke-width="2" />
-          <line x1="340" y1="30" x2="340" y2="185" stroke="#4b5563" stroke-width="2" stroke-dasharray="4,4" />
-          <!-- Labels -->
-          <text x="340" y="205" fill="#9ca3af" font-size="12" text-anchor="middle">0 (DC)</text>
-          <text x="490" y="205" fill="#38bdf8" font-size="12" text-anchor="middle">+fs/2 (Nyquist)</text>
-          <text x="190" y="205" fill="#38bdf8" font-size="12" text-anchor="middle">-fs/2 (Nyquist)</text>
-          <text x="630" y="205" fill="#f97316" font-size="12" text-anchor="middle">+fs</text>
-          <text x="50" y="205" fill="#f97316" font-size="12" text-anchor="middle">-fs</text>
-          <!-- Baseband Spectrum Triangles -->
-          <polygon points="260,170 340,60 420,170" fill="rgba(56, 189, 248, 0.45)" stroke="#38bdf8" stroke-width="2"/>
-          <text x="340" y="110" fill="#f3f4f6" font-size="13" font-weight="bold" text-anchor="middle">Baseband X(F)</text>
-          <!-- Aliased / Replicated Triangles -->
-          <polygon points="550,170 630,60 710,170" fill="rgba(249, 115, 22, 0.3)" stroke="#f97316" stroke-width="1.5" stroke-dasharray="3,3"/>
-          <polygon points="-30,170 50,60 130,170" fill="rgba(249, 115, 22, 0.3)" stroke="#f97316" stroke-width="1.5" stroke-dasharray="3,3"/>
-          <!-- Overlap / Aliasing Zone marker -->
-          <path d="M 460 170 Q 480 120 500 170" fill="rgba(239, 68, 68, 0.5)" stroke="#ef4444" stroke-width="2"/>
-          <text x="480" y="145" fill="#ef4444" font-size="11" font-weight="bold" text-anchor="middle">Aliasing!</text>
-        </svg>
-        <div class="diagram-caption">Figure 1.1: Frequency domain periodic replication upon sampling. If $f_s < 2 f_{\max}$, neighboring replicas overlap, resulting in irreversible aliasing.</div>
+      <div class="pipeline-step">
+        <div class="step-num">T4</div>
+        <div class="step-info">
+          <div class="step-title">Parseval’s Energy Theorem</div>
+          <div class="step-desc">$$E = \sum_{n=-\infty}^\infty |x[n]|^2 = rac{1}{2\pi} \int_{-\pi}^{\pi} |X(e^{j\omega})|^2 d\omega$$ Total energy in time domain equals total energy in frequency domain.</div>
+        </div>
       </div>
+    </div>
+  </div>
+</details>
 
-      <h2 class="section-title">1.1 Discrete-Time Fourier Transform (DTFT) & Z-Transform</h2>
-      <p>The DTFT of a sequence $x[n]$ is defined as:</p>
-      <p style="text-align:center; margin:1rem 0; font-size:1.1rem;">$$X(e^{j\omega}) = \sum_{n=-\infty}^{\infty} x[n] e^{-j\omega n}$$</p>
-      <div class="callout">
-        <div class="callout-title">💡 Critical Interview Trap: DTFT vs DFT vs Continuous-Time</div>
-        <ul>
-          <li><strong>DTFT is continuous and periodic with $2\pi$</strong>. The highest physical frequency in discrete time is always at $\omega = \pi$ (which corresponds to $f_s/2$).</li>
-          <li><strong>DFT is discrete and finite-length ($N$)</strong>: it samples the DTFT at $N$ discrete frequency bins $\omega_k = \frac{2\pi k}{N}$.</li>
-          <li><strong>Z-Transform evaluates to DTFT</strong> when evaluated on the unit circle ($z = e^{j\omega}$), which requires the unit circle $|z|=1$ to be inside the Region of Convergence (ROC).</li>
-        </ul>
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART II: THE Z-TRANSFORM                                 -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part2_z_transform">Part II: The z-Transform & System Functions (Oppenheim Chapter 3)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 4 -->
+<details class="module-card" id="_mod4_z_transform_roc">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 3.0 - 3.4</span> Module 4: The z-Transform, ROC Properties & Inversion Techniques</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>4.1 Definition & Relation to DTFT</h3>
+    <p>The bilateral $z$-transform generalizes the Fourier transform to complex frequencies $z = r e^{j\omega}$:</p>
+    $$X(z) = \sum_{n=-\infty}^{\infty} x[n] z^{-n}$$
+    <p>When evaluated on the unit circle ($|z| = r = 1$), the $z$-transform reduces identically to the DTFT: $X(e^{j\omega}) = X(z)ig|_{z = e^{j\omega}}$. For the DTFT to exist, the unit circle must lie within the Region of Convergence (ROC).</p>
+
+    <h3>4.2 All Properties of the Region of Convergence (ROC)</h3>
+    <div class="admonitionblock note">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Note</div></td>
+          <td class="content">
+            <ol>
+              <li>The ROC is a ring or disk in the $z$-plane centered at the origin: $r_R < |z| < r_L$.</li>
+              <li>The Fourier transform of $x[n]$ converges absolutely $\iff$ <strong>the ROC includes the unit circle $|z| = 1$</strong>.</li>
+              <li>The ROC cannot contain any poles.</li>
+              <li>If $x[n]$ is a <strong>finite-duration sequence</strong>, the ROC is the entire $z$-plane, except possibly $z = 0$ (if $x[n]$ has non-zero values for $n > 0$) and/or $z = \infty$ (if $x[n]$ has non-zero values for $n < 0$).</li>
+              <li>If $x[n]$ is a <strong>right-sided sequence</strong> (causal-type), the ROC extends outward from the outermost finite pole to infinity: $|z| > r_{\max}$.</li>
+              <li>If $x[n]$ is a <strong>left-sided sequence</strong> (anti-causal), the ROC extends inward from the innermost non-zero pole to zero: $|z| < r_{\min}$.</li>
+              <li>If $x[n]$ is a <strong>two-sided sequence</strong>, the ROC is an open ring between two concentric circles containing no poles: $r_1 < |z| < r_2$.</li>
+            </ol>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>4.3 Inverse z-Transform by Partial Fraction Expansion</h3>
+    <p>For rational system functions $X(z) = rac{P(z)}{Q(z)}$, expand $X(z)$ in partial fractions of $z^{-1}$:</p>
+    $$X(z) = \sum_{k=1}^N rac{A_k}{1 - d_k z^{-1}}$$
+    <p>Each individual term maps according to the specified ROC:</p>
+    <ul>
+      <li>If ROC is $|z| > |d_k|$ (Right-sided): $rac{1}{1 - d_k z^{-1}} \longleftrightarrow d_k^n u[n]$</li>
+      <li>If ROC is $|z| < |d_k|$ (Left-sided): $rac{1}{1 - d_k z^{-1}} \longleftrightarrow -d_k^n u[-n - 1]$</li>
+    </ul>
+  </div>
+</details>
+
+<!-- MODULE 5 -->
+<details class="module-card" id="_mod5_z_lti_systems">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 3.5 - 3.6</span> Module 5: Transfer Functions, Difference Equations & Causality vs Stability</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>5.1 The System Function (Transfer Function)</h3>
+    <p>Applying the convolution property $\mathcal{Z}\{x[n] * h[n]\} = X(z) H(z)$, the system transfer function is:</p>
+    $$H(z) = rac{Y(z)}{X(z)} = rac{\sum_{m=0}^M b_m z^{-m}}{1 + \sum_{k=1}^N a_k z^{-k}} = b_0 rac{\prod_{m=1}^M (1 - c_m z^{-1})}{\prod_{k=1}^N (1 - d_k z^{-1})}$$
+    <p>where $c_m$ are system zeros, and $d_k$ are system poles.</p>
+
+    <h3>5.2 Causality and Stability Criteria</h3>
+    <div class="flow-diagram-container">
+      <div class="flow-diagram-title">⚖️ The Stability & Causality Matrix</div>
+      <table class="tableblock">
+        <thead>
+          <tr>
+            <th>System Condition</th>
+            <th>Region of Convergence (ROC)</th>
+            <th>Pole Locations in the $z$-Plane</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Causal System</strong></td>
+            <td>ROC extends outward from outermost pole: $|z| > \max_k |d_k|$</td>
+            <td>Poles can be anywhere, but ROC must be exterior of a circle.</td>
+          </tr>
+          <tr>
+            <td><strong>Stable System (BIBO)</strong></td>
+            <td>ROC must include the unit circle: $|z| = 1 \in 	ext{ROC}$</td>
+            <td>Unit circle cannot pass through any pole.</td>
+          </tr>
+          <tr>
+            <td><strong>Causal AND Stable System</strong></td>
+            <td>ROC: $|z| > \max_k |d_k|$ where $\max_k |d_k| < 1$</td>
+            <td><strong>ALL poles must lie STRICTLY INSIDE the unit circle: $|d_k| < 1$ for all $k$.</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART III: SAMPLING & MULTIRATE                           -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part3_sampling_multirate">Part III: Sampling of Continuous-Time Signals & Multirate (Oppenheim Chapter 4)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 6 -->
+<details class="module-card" id="_mod6_sampling_aliasing">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 4.0 - 4.4</span> Module 6: Periodic Sampling, Aliasing & Sinc Reconstruction</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>6.1 Periodic Sampling & Spectral Replication</h3>
+    <p>Sampling a continuous signal $x_a(t)$ with interval $T$ creates discrete sequence $x[n] = x_a(n T)$. In the frequency domain, the spectrum of the sampled sequence $X(e^{j\omega})$ is an infinite periodic sum of shifted replicas of $X_a(j\Omega)$:</p>
+    $$X(e^{j\omega}) = rac{1}{T} \sum_{k=-\infty}^{\infty} X_a\left( j\left(rac{\omega - 2\pi k}{T}ight) ight)$$
+    <p>where continuous frequency $\Omega$ and discrete frequency $\omega$ are linked by: $\omega = \Omega T$.</p>
+
+    <h3>6.2 The Nyquist-Shannon Sampling Theorem</h3>
+    <div class="admonitionblock important">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Important</div></td>
+          <td class="content">
+            Let $x_a(t)$ be a bandlimited continuous signal with $X_a(j\Omega) = 0$ for $|\Omega| > \Omega_N$. Then $x_a(t)$ is uniquely determined by its samples $x[n] = x_a(nT)$ if and only if:
+            $$\Omega_s = rac{2\pi}{T} \ge 2 \Omega_N \iff f_s \ge 2 f_N$$
+            If $f_s < 2 f_N$, spectral copies overlap, corrupting the signal by <strong>aliasing</strong>. Frequencies fold back according to:
+            $$f_{	ext{alias}} = |f_0 - k f_s| \le rac{f_s}{2}$$
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>6.3 Ideal Reconstruction (Whittaker-Shannon Sinc Interpolation)</h3>
+    <p>Passing the impulse-modulated sampled signal through an ideal analog lowpass reconstruction filter with gain $T$ and cutoff $\Omega_c = \pi / T$ recovers the continuous signal exactly:</p>
+    $$x_a(t) = \sum_{n=-\infty}^{\infty} x[n] \cdot \operatorname{sinc}\left( rac{t - n T}{T} ight), \quad 	ext{where } \operatorname{sinc}(u) = rac{\sin(\pi u)}{\pi u}$$
+  </div>
+</details>
+
+<!-- MODULE 7 -->
+<details class="module-card" id="_mod7_multirate_dsp">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 4.6 - 4.7</span> Module 7: Multirate Signal Processing, Decimation, Interpolation & Polyphase</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>7.1 Decimation by Integer Factor $M$ (Downsampling)</h3>
+    <p>Decimation reduces the sampling rate by factor $M$. To prevent aliasing at the lower rate, the signal must first pass through a digital anti-aliasing lowpass filter with cutoff $\omega_c = \pi / M$, followed by a compressor that retains every $M^{	ext{th}}$ sample:</p>
+    $$y[m] = x[m M], \quad Y(e^{j\omega}) = rac{1}{M} \sum_{k=0}^{M-1} X\left(e^{jrac{\omega - 2\pi k}{M}}ight)$$
+
+    <h3>7.2 Interpolation by Integer Factor $L$ (Upsampling)</h3>
+    <p>Interpolation increases the sampling rate by factor $L$ in two stages:</p>
+    <ol>
+      <li><strong>Expander (Zero-insertion):</strong> Inserts $L-1$ zeros between samples: $x_e[n] = x[n/L]$ for $n = 0, \pm L, \dots$ (compresses frequency spectrum by factor $L$, producing $L-1$ unwanted spectral images).</li>
+      <li><strong>Anti-Imaging Filter:</strong> Digital lowpass filter with cutoff $\omega_c = \pi / L$ and gain $L$ to remove spectral images and interpolate values.</li>
+    </ol>
+
+    <h3>7.3 Polyphase Decomposition & Computational Savings</h3>
+    <p>A transfer function $H(z)$ can be decomposed into $M$ polyphase components:</p>
+    $$H(z) = \sum_{k=0}^{M-1} z^{-k} E_k(z^M)$$
+    <div class="admonitionblock tip">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Tip</div></td>
+          <td class="content">
+            <strong>The Noble Identity:</strong> Filtering by $E_k(z^M)$ followed by downsampling by $M$ is mathematically identical to downsampling by $M$ first, then filtering by $E_k(z)$.<br>
+            <strong>Computational Benefit:</strong> Filtering occurs at the <em>low decimated sampling rate $f_s/M$</em> rather than the high rate $f_s$, reducing arithmetic operations by a factor of $M$!
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</details>
+
+<!-- MODULE 8 -->
+<details class="module-card" id="_mod8_quantization_noise">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 4.8 - 4.9</span> Module 8: A/D Conversion, Quantization Noise & Noise Shaping</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>8.1 Statistical Model of Quantization Errors</h3>
+    <p>When an analog voltage is quantized by a $(B+1)$-bit uniform analog-to-digital converter with full-scale range $[-X_m, X_m]$, the quantization step size is:</p>
+    $$\Delta = rac{2 X_m}{2^{B+1}} = rac{X_m}{2^B}$$
+    <p>Assuming the quantization error $e[n]$ is uniformly distributed between $[-\Delta/2, \Delta/2]$ and uncorrelated with the input signal, the quantization noise variance is:</p>
+    $$\sigma_e^2 = rac{\Delta^2}{12} = rac{X_m^2 2^{-2B}}{12}$$
+
+    <h3>8.2 The 6 dB Per Bit Rule (SQNR)</h3>
+    <p>For a full-scale sinusoidal input of amplitude $X_m$, the signal power is $\sigma_x^2 = X_m^2 / 2$. The Signal-to-Quantization-Noise Ratio is:</p>
+    $$	ext{SQNR} = 10 \log_{10}\left( rac{\sigma_x^2}{\sigma_e^2} ight) = 10 \log_{10}\left( rac{X_m^2 / 2}{X_m^2 2^{-2B} / 12} ight) = 10 \log_{10}(1.5 \cdot 2^{2B}) pprox 6.02 B + 1.76 	ext{ dB}$$
+    <p><strong>Every additional bit of ADC wordlength improves dynamic range by approximately $6	ext{ dB}$.</strong></p>
+
+    <h3>8.3 Oversampling & Noise Shaping (Sigma-Delta $\Sigma\Delta$)</h3>
+    <p>Oversampling by ratio $	ext{OSR} = f_s / (2 f_B)$ spreads the fixed quantization noise $\sigma_e^2$ over a wider frequency band $[0, f_s/2]$. Adding a feedback integrator (first-order noise shaping) filters the noise by transfer function $H_n(z) = 1 - z^{-1}$, pushing noise power out of the low-frequency audio/sensor band into high frequencies where it is removed by a simple digital decimation filter.</p>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART IV: TRANSFORM ANALYSIS                              -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part4_transform_analysis">Part IV: Transform Analysis of LTI Systems (Oppenheim Chapter 5)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 9 -->
+<details class="module-card" id="_mod9_frequency_response_phase">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 5.0 - 5.3</span> Module 9: Frequency Response, Phase & Group Delay Distortion</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>9.1 Phase and Group Delay</h3>
+    <p>The frequency response of an LTI system is a complex function of frequency: $H(e^{j\omega}) = |H(e^{j\omega})| e^{j	heta(\omega)}$.</p>
+    <ul>
+      <li><strong>Phase Response:</strong> $	heta(\omega) = rg H(e^{j\omega})$</li>
+      <li><strong>Phase Delay:</strong> $	au_p(\omega) = -rac{	heta(\omega)}{\omega}$</li>
+      <li><strong>Group Delay:</strong> $	au_g(\omega) = -rac{d}{d\omega} \left[ 	heta(\omega) ight]$</li>
+    </ul>
+
+    <h3>9.2 Physical Meaning of Group Delay Distortion</h3>
+    <div class="admonitionblock warning">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Warning</div></td>
+          <td class="content">
+            Group delay represents the effective time delay experienced by a narrow-band wave packet centered at frequency $\omega$. If $	au_g(\omega)$ is constant for all $\omega$, all frequency components travel through the system with identical delay, preserving waveform fidelity.<br><br>
+            If $	au_g(\omega)$ varies with frequency (as in all non-linear phase IIR filters), different frequency components arrive at different times. This causes <strong>dispersion</strong>, severely distorting ECG pulses in biomedical instruments and causing Inter-Symbol Interference (ISI) in high-speed digital communications!
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>9.3 Geometric Evaluation of Magnitude & Phase from Pole-Zero Plots</h3>
+    <p>Given $H(z) = b_0 rac{\prod_{m=1}^M (z - c_m)}{\prod_{k=1}^N (z - d_k)}$, evaluating at $z = e^{j\omega}$ on the unit circle:</p>
+    $$|H(e^{j\omega})| = |b_0| rac{\prod_{m=1}^M |e^{j\omega} - c_m|}{\prod_{k=1}^N |e^{j\omega} - d_k|}, \quad rg H(e^{j\omega}) = rg(b_0) + \sum_{m=1}^M rg(e^{j\omega} - c_m) - \sum_{k=1}^N rg(e^{j\omega} - d_k)$$
+    <p>As point $e^{j\omega}$ traverses the unit circle, proximity to a pole produces a peak in $|H(e^{j\omega})|$, while proximity to a zero produces a notch or valley.</p>
+  </div>
+</details>
+
+<!-- MODULE 10 -->
+<details class="module-card" id="_mod10_allpass_minphase">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 5.4 - 5.6</span> Module 10: Allpass Systems, Minimum-Phase & Generalized Linear Phase FIR</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>10.1 Allpass Systems</h3>
+    <p>An allpass system has a constant magnitude response across all frequencies: $|H_{	ext{ap}}(e^{j\omega})| = 1$ for all $\omega$. Its transfer function is a cascade of first- and second-order sections exhibiting reciprocal pole-zero symmetry:</p>
+    $$H_{	ext{ap}}(z) = \prod_{k=1}^N rac{z^{-1} - d_k^*}{1 - d_k z^{-1}}$$
+    <p>For every pole at $z = d_k$ inside the unit circle, there is a corresponding zero at $z = 1/d_k^*$ outside the unit circle. Allpass systems are widely used as <strong>phase equalizers</strong>.</p>
+
+    <h3>10.2 Minimum-Phase Systems & Canonical Decomposition</h3>
+    <p>A stable, causal LTI system is <strong>minimum-phase</strong> if and only if <strong>all of its poles AND all of its zeros lie strictly inside the unit circle</strong>.</p>
+    <div class="admonitionblock note">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Note</div></td>
+          <td class="content">
+            <strong>Key Properties of Minimum-Phase Systems:</strong>
+            <ol>
+              <li><strong>Minimum Phase-Lag & Minimum Group Delay:</strong> Among all systems having the exact same magnitude response, the minimum-phase system has the smallest phase lag and smallest group delay.</li>
+              <li><strong>Minimum Energy Delay:</strong> Energy is concentrated as close to the time origin $n=0$ as possible.</li>
+              <li><strong>Stable & Causal Inverse:</strong> Because all zeros are inside the unit circle, the inverse system $H_i(z) = 1/H(z)$ is also causal and stable!</li>
+              <li><strong>Unique Factorization:</strong> Any rational system can be factored uniquely into a minimum-phase system and an allpass system:
+              $$H(z) = H_{\min}(z) \cdot H_{	ext{ap}}(z)$$</li>
+            </ol>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>10.3 The Four Types of Linear-Phase FIR Systems (Oppenheim Table 5.1)</h3>
+    <p>Linear phase requires the impulse response to exhibit symmetry: $h[n] = \pm h[M - n]$ where $M$ is the filter order (length $N = M+1$).</p>
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Symmetry</th>
+          <th>Order $M$ / Length $N$</th>
+          <th>Mandatory Inherent Zeros</th>
+          <th>Supported Filter Applications</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Type I</strong></td>
+          <td>Symmetric ($h[n] = h[M-n]$)</td>
+          <td>$M$ Even, $N$ Odd</td>
+          <td>None</td>
+          <td><strong>Lowpass, Highpass, Bandpass, Bandstop (Universal)</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Type II</strong></td>
+          <td>Symmetric ($h[n] = h[M-n]$)</td>
+          <td>$M$ Odd, $N$ Even</td>
+          <td>Zero at $z = -1$ ($\omega = \pi$)</td>
+          <td>Lowpass, Bandpass. <strong>Cannot design Highpass or Bandstop!</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Type III</strong></td>
+          <td>Antisymmetric ($h[n] = -h[M-n]$)</td>
+          <td>$M$ Even, $N$ Odd</td>
+          <td>Zeros at $z = 1$ ($\omega = 0$) and $z = -1$ ($\omega = \pi$)</td>
+          <td>Differentiators, Hilbert Transformers. <strong>Cannot design LP/HP!</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Type IV</strong></td>
+          <td>Antisymmetric ($h[n] = -h[M-n]$)</td>
+          <td>$M$ Odd, $N$ Even</td>
+          <td>Zero at $z = 1$ ($\omega = 0$)</td>
+          <td>Highpass, Differentiators, Hilbert Transformers.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART V: FILTER STRUCTURES & NUMERICAL EFFECTS            -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part5_filter_structures">Part V: Structures for Discrete-Time Systems (Oppenheim Chapter 6)</h2>
+<div class="sectionbody">
+
+<!-- MODULE 11 -->
+<details class="module-card" id="_mod11_filter_structures">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 6.0 - 6.6</span> Module 11: IIR & FIR Filter Realizations (Direct Form II Transposed)</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>11.1 Comparison of Basic Filter Realization Structures</h3>
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Realization Structure</th>
+          <th>Delay Registers</th>
+          <th>Internal Overflow Risk</th>
+          <th>Practical MathWorks / DSP Application</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Direct Form I</strong></td>
+          <td>$M + N$ (Non-canonical)</td>
+          <td>Low</td>
+          <td>Simple hardware with separate zero/pole stages.</td>
+        </tr>
+        <tr>
+          <td><strong>Direct Form II (Canonical)</strong></td>
+          <td>$\max(M, N)$ (Canonical)</td>
+          <td><span style="color: #bf0000; font-weight: bold;">High</span> (Intermediate node $w[n]$ overflows)</td>
+          <td>Textbook canonical form; avoided in fixed-point processors.</td>
+        </tr>
+        <tr>
+          <td><strong>Direct Form II Transposed</strong></td>
+          <td>$\max(M, N)$ (Canonical)</td>
+          <td><span style="color: #4a7a15; font-weight: bold;">Minimal</span> (Direct delay accumulation)</td>
+          <td><strong>Standard implementation used by MATLAB <code>filter.m</code> and DSP chips!</strong></td>
+        </tr>
+        <tr>
+          <td><strong>Cascade Form (SOS / Biquads)</strong></td>
+          <td>$\max(M, N)$</td>
+          <td>Very Low</td>
+          <td><strong>Mandatory for high-order IIR filters</strong> to eliminate pole sensitivity.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>11.2 Direct Form II Transposed Signal Flow (Tellegen's Theorem)</h3>
+    <p>By Transposition Theorem, reversing all signal paths, swapping branch points with summing nodes, and interchanging input/output leaves the transfer function identical:</p>
+    $$y[n] = b_0 x[n] + s_1[n-1]$$
+    $$s_k[n] = b_k x[n] - a_k y[n] + s_{k+1}[n-1]$$
+    <div class="admonitionblock tip">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Tip</div></td>
+          <td class="content">
+            <strong>Why MATLAB <code>filter</code> uses Direct Form II Transposed:</strong> Products $b_k x[n]$ and $-a_k y[n]$ are accumulated directly into delay registers before storage. Modern CPUs execute this using hardware Fused Multiply-Accumulate (FMA) instructions, minimizing quantization noise and completely preventing internal node dynamic overflow.
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>11.3 Cascade Realization (Second-Order Sections / Biquads)</h3>
+    <p>High-order direct form polynomials have extreme <strong>pole sensitivity</strong>: a tiny perturbation in high-order polynomial coefficients $a_k$ causes clustered poles to migrate outside the unit circle ($|d_k| \ge 1$), inducing violent instability! To prevent this, always factor $H(z)$ into second-order biquads:</p>
+    $$H(z) = b_0 \prod_{k=1}^K rac{1 + eta_{1k} z^{-1} + eta_{2k} z^{-2}}{1 + lpha_{1k} z^{-1} + lpha_{2k} z^{-2}}$$
+  </div>
+</details>
+
+<!-- MODULE 12 -->
+<details class="module-card" id="_mod12_finite_wordlength">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 6.7 - 6.10</span> Module 12: Finite-Precision Numerical Effects & Limit Cycles</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>12.1 Sources of Finite-Wordlength Errors</h3>
+    <div class="pipeline-grid">
+      <div class="pipeline-step">
+        <div class="step-num">E1</div>
+        <div class="step-info">
+          <div class="step-title">A/D Input Quantization</div>
+          <div class="step-desc">Quantizing continuous sensor samples to $B+1$ bits introduces white additive noise of variance $\sigma_e^2 = \Delta^2 / 12$.</div>
+        </div>
       </div>
-
-      <h2 class="section-title">1.2 Radix-2 Cooley-Tukey FFT & The Butterfly Operation</h2>
-      <p>An $N$-point DFT ($N = 2^M$) is decimated into even and odd index sequences:</p>
-      <p style="text-align:center; margin:0.75rem 0;">$$X[k] = E[k] + W_N^k O[k], \quad X[k + N/2] = E[k] - W_N^k O[k]$$</p>
-
-      <div class="diagram-container">
-        <svg width="600" height="150" viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg">
-          <!-- Butterfly paths -->
-          <line x1="80" y1="40" x2="350" y2="40" stroke="#38bdf8" stroke-width="2.5" />
-          <line x1="80" y1="110" x2="220" y2="110" stroke="#f97316" stroke-width="2.5" />
-          <line x1="220" y1="110" x2="350" y2="40" stroke="#38bdf8" stroke-width="2" />
-          <line x1="80" y1="40" x2="350" y2="110" stroke="#f97316" stroke-width="2" />
-          <line x1="350" y1="110" x2="520" y2="110" stroke="#f97316" stroke-width="2.5" />
-          <line x1="350" y1="40" x2="520" y2="40" stroke="#38bdf8" stroke-width="2.5" />
-          <!-- Twiddle factor multiplier box -->
-          <circle cx="160" cy="110" r="16" fill="#1e293b" stroke="#f97316" stroke-width="2" />
-          <text x="160" y="114" fill="#f97316" font-size="10" font-weight="bold" text-anchor="middle">W_N^k</text>
-          <!-- -1 Multiplier indicator -->
-          <circle cx="300" cy="85" r="12" fill="#ef4444" stroke="#ef4444" stroke-width="1.5" />
-          <text x="300" y="89" fill="#ffffff" font-size="10" font-weight="bold" text-anchor="middle">-1</text>
-          <!-- Labels -->
-          <text x="30" y="45" fill="#f3f4f6" font-size="13" font-weight="600">E[k]</text>
-          <text x="30" y="115" fill="#f3f4f6" font-size="13" font-weight="600">O[k]</text>
-          <text x="535" y="45" fill="#38bdf8" font-size="13" font-weight="bold">X[k] = E[k] + W_N^k O[k]</text>
-          <text x="535" y="115" fill="#f97316" font-size="13" font-weight="bold">X[k + N/2] = E[k] - W_N^k O[k]</text>
-        </svg>
-        <div class="diagram-caption">Figure 1.2: Radix-2 DIT Butterfly computation unit. Reusing the product $W_N^k O[k]$ is the cornerstone of FFT speedup.</div>
+      <div class="pipeline-step">
+        <div class="step-num">E2</div>
+        <div class="step-info">
+          <div class="step-title">Coefficient Quantization</div>
+          <div class="step-desc">Truncating filter coefficients $b_k, a_k$ shifts pole and zero locations in the $z$-plane, distorting cutoff frequency and risking instability.</div>
+        </div>
       </div>
-
-      <h2 class="section-title">1.3 Filter Realization: Direct Form II Transposed</h2>
-      <p>Why does MathWorks standardize on Direct Form II Transposed for <code>filter.m</code>?</p>
-      <div class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Architecture</th>
-              <th>Delay Elements (Registers)</th>
-              <th>Internal Overflow Risk</th>
-              <th>Accumulator Friendly</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Direct Form I</strong></td>
-              <td>$M + N$ (Non-canonical)</td>
-              <td>Low</td>
-              <td>Requires separate zeros and poles stages</td>
-            </tr>
-            <tr>
-              <td><strong>Direct Form II</strong></td>
-              <td>$\max(M, N)$ (Canonical)</td>
-              <td><span style="color:#ef4444; font-weight:600;">High (Node $w[n]$ overflows on high Q)</span></td>
-              <td>Intermediate node calculated separately</td>
-            </tr>
-            <tr>
-              <td><strong>Direct Form II Transposed</strong></td>
-              <td>$\max(M, N)$ (Canonical)</td>
-              <td><span style="color:#10b981; font-weight:600;">Extremely Low (Noise robust)</span></td>
-              <td><strong>Direct accumulation into delay line (FMA optimal)</strong></td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="pipeline-step">
+        <div class="step-num">E3</div>
+        <div class="step-info">
+          <div class="step-title">Arithmetic Round-Off & Accumulation Noise</div>
+          <div class="step-desc">Multiplying two $(B+1)$-bit numbers yields a $2B$-bit product. Quantizing back to $(B+1)$ bits injects round-off noise into the feedback loop.</div>
+        </div>
       </div>
-    </section>
-
-    <!-- ==================== TAB 2: MATLAB & TOOLBOXES ==================== -->
-    <section id="tab-matlab" class="tab-content">
-      <div class="hero-banner">
-        <h1 class="hero-title">2. MATLAB Signal Processing & Algorithms Mastery</h1>
-        <p class="hero-subtitle">High-performance vectorization patterns, Signal Processing Toolbox workflows, filter design objects, spectral estimation, and streaming DSP System Objects.</p>
+      <div class="pipeline-step">
+        <div class="step-num">E4</div>
+        <div class="step-info">
+          <div class="step-title">Dynamic Range Overflow & Limit Cycles</div>
+          <div class="step-desc">In Two's complement arithmetic, positive overflow wraps around to large negative numbers, exciting sustained non-linear periodic oscillations (limit cycles).</div>
+        </div>
       </div>
+    </div>
 
-      <h2 class="section-title">2.1 Vectorization vs. Slow MATLAB Loops</h2>
-      <div class="callout warning">
-        <div class="callout-title">⚠️ MathWorks Coding Benchmark</div>
-        MathWorks code reviews strictly penalize: (1) Growing arrays dynamically inside loops without preallocation, (2) Using nested loops for element-wise or sliding window operations when vectorized primitives (`cumsum`, `conv`, `filter`) exist.
-      </div>
+    <h3>12.2 Zero-Input Limit Cycles</h3>
+    <p>In fixed-point recursive IIR filters with zero input ($x[n] = 0$), two distinct non-linear limit cycles can occur:</p>
+    <ol>
+      <li><strong>Granular Limit Cycles (Round-Off Deadbands):</strong> Small-amplitude oscillations trapped within the round-off deadband around zero.</li>
+      <li><strong>Overflow Limit Cycles:</strong> Large-amplitude, full-scale rail-to-rail square wave oscillations caused by Two's complement wrap-around overflow.</li>
+    </ol>
+    <div class="admonitionblock important">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Important</div></td>
+          <td class="content">
+            <strong>How to Eliminate Overflow Limit Cycles:</strong> Replace standard Two's complement wrap-around addition with <strong>saturation arithmetic</strong>! When an addition exceeds the maximum positive representation, it is clamped to $+1.0$ (or $+32767$ in Q15), completely breaking the feedback cycle.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</details>
 
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>% BAD: Dynamic array growth in loop -> O(N^2) memory reallocations!
-y = [];
-for i = 1:100000
-    y(i) = sin(2*pi*50*i/1000);
-end
+</div>
+</div>
 
-% GOOD: Contiguous preallocation -> O(N)
-y = zeros(1, 100000);
-for i = 1:100000
-    y(i) = sin(2*pi*50*i/1000);
-end
+<!-- ======================================================== -->
+<!-- PART VI: FILTER DESIGN TECHNIQUES                        -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part6_filter_design">Part VI: Filter Design Techniques (Oppenheim Chapter 7)</h2>
+<div class="sectionbody">
 
-% BEST: Vectorized SIMD execution -> 100x Faster
-n = 1:100000;
-y = sin(2*pi*50*n/1000);</code></pre>
+<!-- MODULE 13 -->
+<details class="module-card" id="_mod13_iir_design">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 7.0 - 7.4</span> Module 13: IIR Filter Design: Impulse Invariance & Bilinear Transformation</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>13.1 Filter Design Specifications</h3>
+    <p>Filter requirements are defined in four parameters:</p>
+    <ul>
+      <li>Passband cutoff: $\omega_p$, Passband ripple: $\delta_1$ (or $R_p = -20\log_{10}(1 - \delta_1)	ext{ dB}$)</li>
+      <li>Stopband cutoff: $\omega_s$, Stopband attenuation: $\delta_2$ (or $A_s = -20\log_{10}(\delta_2)	ext{ dB}$)</li>
+      <li>Transition band: $\Delta\omega = \omega_s - \omega_p$</li>
+    </ul>
 
-      <h2 class="section-title">2.2 In-Place Peak Detection (`findpeaks` Under the Hood)</h2>
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>function [pks, locs] = custom_peak_detect(x, min_height, min_dist)
-    x = x(:).';
-    N = length(x);
-    if N < 3, pks = []; locs = []; return; end
-    
-    % Vectorized interior local maxima mask
-    is_peak = (x(2:N-1) > x(1:N-2)) & (x(2:N-1) > x(3:N)) & (x(2:N-1) >= min_height);
-    candidate_locs = find(is_peak) + 1;
-    
-    % Enforce minimum distance between adjacent peaks
-    if isempty(candidate_locs) || min_dist <= 1
-        locs = candidate_locs;
-        pks = x(locs);
-        return;
-    end
-    
-    % Sort candidates by amplitude descending to retain strongest peaks
-    [~, sort_idx] = sort(x(candidate_locs), 'descend');
-    sorted_locs = candidate_locs(sort_idx);
-    keep = true(size(sorted_locs));
-    
-    for i = 1:length(sorted_locs)
-        if keep(i)
-            % Suppress neighbors within min_dist
-            suppress = abs(sorted_locs - sorted_locs(i)) < min_dist;
-            suppress(i) = false; % Keep current peak
-            keep(suppress) = false;
-        end
-    end
-    
-    locs = sort(sorted_locs(keep));
-    pks = x(locs);
+    <h3>13.2 Design by Impulse Invariance</h3>
+    <p>Samples continuous impulse response: $h[n] = T_s h_a(n T_s)$, which maps continuous poles to discrete poles via: $s_k \longrightarrow z_k = e^{s_k T_s}$.</p>
+    <div class="admonitionblock warning">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Warning</div></td>
+          <td class="content">
+            <strong>Fatal Limitation of Impulse Invariance:</strong> Because continuous frequency maps linearly to discrete frequency ($\omega = \Omega T$), <strong>aliasing is unavoidable</strong> unless the analog prototype is strictly bandlimited to $|\Omega| < \pi / T$. Consequently, Impulse Invariance <em>cannot</em> be used to design Highpass or Bandstop filters!
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>13.3 Design by Bilinear Transformation (BLT)</h3>
+    <p>Conformal algebraic mapping from analog $s$-plane to discrete $z$-plane:</p>
+    $$s = rac{2}{T_s} rac{1 - z^{-1}}{1 + z^{-1}}$$
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Bilinear Transform Property</th>
+          <th>Mathematical Derivation / Result</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>No Aliasing</strong></td>
+          <td>Compresses entire infinite imaginary axis $-\infty < \Omega < \infty$ onto unit circle $-\pi < \omega < \pi$.</td>
+        </tr>
+        <tr>
+          <td><strong>Guaranteed Stability</strong></td>
+          <td>Maps Left-Half $s$-plane ($\operatorname{Re}(s) < 0$) strictly inside unit circle ($|z| < 1$).</td>
+        </tr>
+        <tr>
+          <td><strong>Frequency Warping</strong></td>
+          <td>$$\omega = 2 rctan\left(rac{\Omega T_s}{2}ight) \iff \Omega = rac{2}{T_s} 	an\left(rac{\omega}{2}ight)$$</td>
+        </tr>
+        <tr>
+          <td><strong>Mandatory Pre-Warping</strong></td>
+          <td>$$\Omega_c = rac{2}{T_s} 	an\left(rac{\omega_c}{2}ight)$$ Prevents cutoff distortion.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>13.4 Classic Continuous-Time Prototypes</h3>
+    <ul>
+      <li><strong>Butterworth:</strong> Maximally flat passband, monotonic roll-off in stopband.</li>
+      <li><strong>Chebyshev Type I:</strong> Equiripple in passband, monotonic in stopband. Faster transition than Butterworth.</li>
+      <li><strong>Chebyshev Type II:</strong> Monotonic in passband, equiripple in stopband (maximally flat delay at DC).</li>
+      <li><strong>Elliptic (Cauer):</strong> Equiripple in both passband and stopband. Achieves steepest transition for a given filter order!</li>
+    </ul>
+  </div>
+</details>
+
+<!-- MODULE 14 -->
+<details class="module-card" id="_mod14_fir_design">
+  <summary class="module-summary">
+    <div><span class="module-badge">Oppenheim 7.5 - 7.8</span> Module 14: FIR Filter Design: Windowing Method & Parks-McClellan Optimal Remez</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>14.1 FIR Design by Windowing</h3>
+    <p>Truncates ideal infinite impulse response $h_d[n] = rac{\sin(\omega_c (n - M/2))}{\pi (n - M/2)}$ by multiplying with a finite window $w[n]$:</p>
+    $$h[n] = h_d[n] \cdot w[n]$$
+    <div class="admonitionblock important">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Important</div></td>
+          <td class="content">
+            <strong>Gibbs Phenomenon:</strong> Truncating with a Rectangular window produces an unavoidable $pprox 9\%$ ripple overshoot ($-21	ext{ dB}$ stopband attenuation) near band discontinuities, regardless of how large filter order $M$ is!<br>
+            To suppress ripples, apply smooth tapered windows:
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <table class="tableblock">
+      <thead>
+        <tr>
+          <th>Window Type</th>
+          <th>Mainlobe Width ($\Delta\omega$)</th>
+          <th>Peak Sidelobe (dB)</th>
+          <th>Stopband Attenuation (dB)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Rectangular</strong></td><td>$4\pi / M$</td><td>$-13	ext{ dB}$</td><td>$-21	ext{ dB}$</td></tr>
+        <tr><td><strong>Hanning (Hann)</strong></td><td>$8\pi / M$</td><td>$-31	ext{ dB}$</td><td>$-44	ext{ dB}$</td></tr>
+        <tr><td><strong>Hamming</strong></td><td>$8\pi / M$</td><td>$-41	ext{ dB}$</td><td>$-53	ext{ dB}$</td></tr>
+        <tr><td><strong>Blackman</strong></td><td>$12\pi / M$</td><td>$-58	ext{ dB}$</td><td>$-74	ext{ dB}$</td></tr>
+        <tr><td><strong>Kaiser ($eta$)</strong></td><td>Tunable by parameter $eta$</td><td>Tunable (up to $-100	ext{ dB}$)</td><td>Empirical formulas by J. F. Kaiser</td></tr>
+      </tbody>
+    </table>
+
+    <h3>14.2 Optimal Equiripple FIR: Parks-McClellan (Remez Exchange)</h3>
+    <p>Formulates filter design as a Chebyshev minimax approximation problem: minimize the maximum approximation error over passband and stopband:</p>
+    $$\min_{h[n]} \max_{\omega \in F} W(\omega) \left| A(e^{j\omega}) - D(\omega) ight|$$
+    <div class="admonitionblock tip">
+      <table>
+        <tr>
+          <td class="icon"><div class="title">Tip</div></td>
+          <td class="content">
+            <strong>Alternation Theorem:</strong> An optimal Type I lowpass filter of order $M$ has an equiripple error curve exhibiting at least $r = M/2 + 2$ alternating local extrema. The Parks-McClellan algorithm uses the Remez exchange iteration to converge onto these optimal extremal frequencies.
+          </td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</details>
+
+</div>
+</div>
+
+<!-- ======================================================== -->
+<!-- PART VII: MATHWORKS EDG PRACTICE                         -->
+<!-- ======================================================== -->
+<div class="sect1">
+<h2 id="_part7_mathworks_edg">Part VII: MathWorks EDG Implementation, MATLAB & C/DSA</h2>
+<div class="sectionbody">
+
+<!-- MODULE 15 -->
+<details class="module-card" id="_mod15_matlab_toolbox">
+  <summary class="module-summary">
+    <div><span class="module-badge">MATLAB Mastery</span> Module 15: MATLAB Signal Processing Toolbox & Streaming Algorithms</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>15.1 Vectorization Patterns Expected at MathWorks</h3>
+    <pre><code>% In-place sliding moving average using cumulative sums (O(1) execution!)
+function y = fast_movavg(x, N)
+    cs = cumsum([0, x(:).']);
+    y = (cs(N+1:end) - cs(1:end-N)) / N;
 end</code></pre>
 
-      <h2 class="section-title">2.3 Zero-Phase Filtering: `filter` vs `filtfilt`</h2>
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>fs = 1000;
-t = 0:1/fs:1-1/fs;
-x = sin(2*pi*10*t) + 0.3*randn(size(t));
+    <h3>15.2 Zero-Phase Forward-Backward Filtering (<code>filtfilt</code>)</h3>
+    <p>In offline biomedical or radar signal processing, <code>filtfilt(b, a, x)</code> performs forward-backward filtering to cancel phase distortion ($ngle H(\omega) \equiv 0$), doubling magnitude attenuation ($|H(e^{j\omega})|^2$). In contrast, real-time live streaming audio requires causal <code>filter(b, a, x)</code> or DSP System Objects (<code>dsp.FIRFilter</code>).</p>
+  </div>
+</details>
 
-[b, a] = butter(4, 30/(fs/2), 'low');
-
-% 1. Causal filter: introduces group delay and frequency-dependent phase lag
-y_causal = filter(b, a, x);
-
-% 2. Zero-phase filter: forward-backward filtering cancels all phase distortion
-% Magnitude attenuation is DOUBLED (|H(w)|^2)
-y_zerophase = filtfilt(b, a, x);</code></pre>
-
-      <h2 class="section-title">2.4 DSP System Objects (`dsp.FIRFilter`, `dsp.AsyncBuffer`)</h2>
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>% Frame-based real-time processing simulation
-frameSize = 128;
-fir = dsp.FIRFilter('Numerator', fir1(30, 0.4));
-scope = dsp.TimeScope('SampleRate', 8000, 'TimeSpan', 0.1);
-
-for k = 1:100
-    frame = randn(frameSize, 1);
-    filteredFrame = fir(frame);    % Maintains internal filter states seamlessly!
-    scope([frame, filteredFrame]);
-end
-release(fir);
-release(scope);</code></pre>
-    </section>
-
-    <!-- ==================== TAB 3: C PROGRAMMING & DSA ==================== -->
-    <section id="tab-c-dsa" class="tab-content">
-      <div class="hero-banner">
-        <h1 class="hero-title">3. C Programming & Data Structures for DSP</h1>
-        <p class="hero-subtitle">Pointer mechanics, memory allocation, circular ring buffers, bitwise twiddle factors, 1D convolution in C, matrix rotations, and LeetCode algorithmic patterns.</p>
-      </div>
-
-      <h2 class="section-title">3.1 Circular Buffer (Ring Buffer) for Real-Time DSP</h2>
-      <p>Audio and sensor processing pipelines cannot afford $O(N)$ data shifting when a new sample arrives. A circular buffer achieves $O(1)$ push and access:</p>
-
-      <div class="diagram-container">
-        <svg width="600" height="140" viewBox="0 0 600 140" xmlns="http://www.w3.org/2000/svg">
-          <!-- Circular slots -->
-          <g id="slots" transform="translate(100, 30)">
-            <rect x="0" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="22" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[0]</text>
-            <rect x="55" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="77" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[1]</text>
-            <rect x="110" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="132" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[2]</text>
-            <rect x="165" y="0" width="45" height="45" fill="rgba(249, 115, 22, 0.2)" stroke="#f97316" stroke-width="2.5" rx="4"/>
-            <text x="187" y="27" fill="#f97316" font-size="12" font-weight="bold" text-anchor="middle">head</text>
-            <rect x="220" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="242" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[4]</text>
-            <rect x="275" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="297" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[5]</text>
-            <rect x="330" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="352" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[6]</text>
-            <rect x="385" y="0" width="45" height="45" fill="#1e293b" stroke="#38bdf8" stroke-width="2" rx="4"/>
-            <text x="407" y="27" fill="#f3f4f6" font-size="12" text-anchor="middle">s[7]</text>
-          </g>
-          <text x="300" y="110" fill="#9ca3af" font-size="12" text-anchor="middle">Next write: head = (head + 1) % capacity. If capacity is 2^M: head = (head + 1) & (capacity - 1)</text>
-        </svg>
-        <div class="diagram-caption">Figure 3.1: Circular buffer memory indexing. Zero-copy streaming input buffer.</div>
-      </div>
-
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>#include &lt;stdio.h&gt;
-#include &lt;stdlib.h&gt;
+<!-- MODULE 16 -->
+<details class="module-card" id="_mod16_c_dsp_dsa">
+  <summary class="module-summary">
+    <div><span class="module-badge">C Systems & DSA</span> Module 16: C Memory Architecture, Circular Buffers & LeetCode DSA</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>16.1 O(1) Circular Buffer for Streaming DSP in C</h3>
+    <pre><code>#include &lt;stdlib.h&gt;
 #include &lt;stdbool.h&gt;
 
 typedef struct {
@@ -755,11 +1402,10 @@ typedef struct {
     size_t head;
     size_t count;
     double running_sum;
-} StreamMovAvg;
+} RingBufferFilter;
 
-StreamMovAvg* movavg_init(size_t window_size) {
-    if (window_size == 0) return NULL;
-    StreamMovAvg *f = (StreamMovAvg *)malloc(sizeof(StreamMovAvg));
+RingBufferFilter* ring_init(size_t window_size) {
+    RingBufferFilter *f = (RingBufferFilter *)malloc(sizeof(RingBufferFilter));
     if (!f) return NULL;
     f->buffer = (float *)calloc(window_size, sizeof(float));
     if (!f->buffer) { free(f); return NULL; }
@@ -770,318 +1416,72 @@ StreamMovAvg* movavg_init(size_t window_size) {
     return f;
 }
 
-// O(1) Moving Average update per incoming sample
-float movavg_process(StreamMovAvg *f, float new_sample) {
+float ring_process(RingBufferFilter *f, float sample) {
     f->running_sum -= f->buffer[f->head];      // Subtract oldest sample
-    f->buffer[f->head] = new_sample;           // Store new sample
-    f->running_sum += new_sample;              // Add new sample
+    f->buffer[f->head] = sample;               // Insert new sample
+    f->running_sum += sample;
     
-    f->head = (f->head + 1) % f->capacity;     // Advance pointer
+    // Power of 2 bitwise modulo optimization:
+    f->head = (f->head + 1) % f->capacity;
     if (f->count < f->capacity) f->count++;
-    
     return (float)(f->running_sum / f->count);
 }</code></pre>
 
-      <h2 class="section-title">3.2 C 1D Linear Convolution with Boundary Safety</h2>
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>/**
- * Computes linear convolution y = x * h
- * Output length len_y = len_x + len_h - 1
- */
-float* convolve_1d(const float *x, size_t len_x, const float *h, size_t len_h, size_t *len_y) {
-    if (!x || !h || len_x == 0 || len_h == 0) return NULL;
-    
-    *len_y = len_x + len_h - 1;
-    float *y = (float *)calloc(*len_y, sizeof(float));
-    if (!y) return NULL;
-
-    for (size_t n = 0; n < *len_y; ++n) {
-        float sum = 0.0f;
-        size_t k_min = (n >= len_h - 1) ? n - (len_h - 1) : 0;
-        size_t k_max = (n < len_x - 1) ? n : len_x - 1;
-
-        for (size_t k = k_min; k <= k_max; ++k) {
-            sum += x[k] * h[n - k];
+    <h3>16.2 In-Place 90° Clockwise Matrix Rotation (LeetCode 48)</h3>
+    <pre><code>void rotate_matrix(int n, int matrix[n][n]) {
+    // Step 1: Transpose matrix along diagonal
+    for (int i = 0; i < n; ++i) {
+        for (int j = i + 1; j < n; ++j) {
+            int tmp = matrix[i][j];
+            matrix[i][j] = matrix[j][i];
+            matrix[j][i] = tmp;
         }
-        y[n] = sum;
     }
-    return y;
+    // Step 2: Reverse each row horizontally
+    for (int i = 0; i < n; ++i) {
+        int l = 0, r = n - 1;
+        while (l < r) {
+            int tmp = matrix[i][l];
+            matrix[i][l] = matrix[i][r];
+            matrix[i][r] = tmp;
+            l++; r--;
+        }
+    }
 }</code></pre>
+  </div>
+</details>
 
-      <h2 class="section-title">3.3 Fixed-Point Saturation Arithmetic (Q15 Format)</h2>
-      <pre><button class="copy-btn" onclick="copySnippet(this)">Copy</button><code>#include &lt;stdint.h&gt;
+<!-- MODULE 17 -->
+<details class="module-card" id="_mod17_mock_interviews">
+  <summary class="module-summary">
+    <div><span class="module-badge">Mock Screening</span> Module 17: MathWorks Mock Technical Interview Question Bank</div>
+    <span style="font-size: 14px; color: #64748b;">▼</span>
+  </summary>
+  <div class="module-body">
+    <h3>17.1 Real MathWorks EDG Screening Questions</h3>
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+      <p style="font-weight: bold; color: #1e293b; margin-top: 0;">Q1: Multi-Tone Sampling & Aliasing</p>
+      <p>Given $x(t) = 3\cos(600\pi t) + 2\cos(1800\pi t) + \sin(3000\pi t)$ sampled at $f_s = 1200	ext{ Hz}$: What is the Nyquist rate, and what discrete frequencies appear in the sampled signal?</p>
+      <p style="color: #64748b; font-size: 13.5px;"><strong>Model Answer:</strong> Frequencies are $300	ext{ Hz}$, $900	ext{ Hz}$, and $1500	ext{ Hz}$. Nyquist rate $2 f_{\max} = 3000	ext{ Hz}$. Folding limit is $f_s/2 = 600	ext{ Hz}$. $300	ext{ Hz}$ remains at $300	ext{ Hz}$; $900	ext{ Hz}$ aliases to $|900 - 1200| = 300	ext{ Hz}$; $1500	ext{ Hz}$ aliases to $|1500 - 1200| = 300	ext{ Hz}$. All three tones collapse into the single alias frequency of $300	ext{ Hz}$!</p>
+    </div>
 
-typedef int16_t q15_t;
+    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 16px;">
+      <p style="font-weight: bold; color: #1e293b; margin-top: 0;">Q2: Why does MATLAB <code>filter</code> implement Direct Form II Transposed?</p>
+      <p style="color: #64748b; font-size: 13.5px;"><strong>Model Answer:</strong> It uses canonical $\max(M, N)$ delay elements, sums multiplications directly into delay registers (optimal for hardware FMA instructions), eliminates internal summing node overflow inherent to standard Direct Form II, and achieves superior fixed-point round-off noise performance.</p>
+    </div>
+  </div>
+</details>
 
-// Saturating addition: prevents wrap-around distortion in audio DSP
-q15_t q15_add_sat(q15_t a, q15_t b) {
-    int32_t sum = (int32_t)a + (int32_t)b;
-    if (sum > 32767) return 32767;
-    if (sum < -32768) return -32768;
-    return (q15_t)sum;
-}
+</div>
+</div>
 
-// Q15 fixed-point multiplication
-q15_t q15_mul(q15_t a, q15_t b) {
-    int32_t prod = ((int32_t)a * (int32_t)b) >> 15;
-    if (prod > 32767) return 32767;
-    if (prod < -32768) return -32768;
-    return (q15_t)prod;
-}</code></pre>
-    </section>
+</div>
 
-    <!-- ==================== TAB 4: RAPID CHEATSHEETS ==================== -->
-    <section id="tab-cheatsheet" class="tab-content">
-      <div class="hero-banner">
-        <h1 class="hero-title">4. Rapid Recall Cheatsheets & Formula Cards</h1>
-        <p class="hero-subtitle">High-yield summary tables, algorithmic complexities, and decision trees for last-minute revision before the interview.</p>
-      </div>
+<div id="footer">
+<div id="footer-text">
+Oppenheim DSP Master Reference • Prepared for MathWorks EDG Candidates • Ready for GitHub Pages
+</div>
+</div>
 
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-title">📐 Key DSP Mathematical Formulas</div>
-          <div class="table-container">
-            <table>
-              <tr><td><strong>Convolution Length</strong></td><td>$L_y = L_x + L_h - 1$</td></tr>
-              <tr><td><strong>Nyquist Rate</strong></td><td>$f_s \ge 2 f_{\max}$</td></tr>
-              <tr><td><strong>Apparent Alias</strong></td><td>$f_{\text{alias}} = |f_0 - k f_s| \le f_s/2$</td></tr>
-              <tr><td><strong>DFT Frequency Res</strong></td><td>$\Delta f = \frac{f_s}{N} = \frac{1}{T_{\text{record}}}$</td></tr>
-              <tr><td><strong>Radix-2 FFT Mults</strong></td><td>$\frac{N}{2} \log_2 N$</td></tr>
-              <tr><td><strong>FIR Group Delay</strong></td><td>$\tau_g = M/2$ (samples)</td></tr>
-              <tr><td><strong>Bilinear Transform</strong></td><td>$s = \frac{2}{T}\frac{1-z^{-1}}{1+z^{-1}}$</td></tr>
-              <tr><td><strong>Pre-warping</strong></td><td>$\Omega_c = \frac{2}{T}\tan(\omega_c/2)$</td></tr>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <div class="card-title">⚡ Bit Manipulation Quick Matrix</div>
-          <div class="table-container">
-            <table>
-              <tr><td><strong>Check Power of 2</strong></td><td><code>(n > 0) && !(n & (n - 1))</code></td></tr>
-              <tr><td><strong>Get $k$-th Bit</strong></td><td><code>(n >> k) & 1</code></td></tr>
-              <tr><td><strong>Set $k$-th Bit</strong></td><td><code>n | (1U << k)</code></td></tr>
-              <tr><td><strong>Clear $k$-th Bit</strong></td><td><code>n & ~(1U << k)</code></td></tr>
-              <tr><td><strong>Toggle $k$-th Bit</strong></td><td><code>n ^ (1U << k)</code></td></tr>
-              <tr><td><strong>Extract Lowest Bit</strong></td><td><code>n & (-n)</code></td></tr>
-              <tr><td><strong>Endianness Check</strong></td><td><code>*((char*)&(int){1}) == 1</code></td></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🎯 Common Interview Gotchas & Traps</div>
-        <div style="font-size:0.9rem; line-height:1.7;">
-          <p><strong>1. "Does zero-padding increase frequency resolution?"</strong><br>
-          <span style="color:#ef4444; font-weight:600;">NO.</span> Zero-padding merely interpolates the DTFT (spectral density). True resolution requires increasing physical observation time $T_{\text{record}}$.</p>
-          <hr style="border:0; border-top:1px solid var(--surface-border); margin:0.75rem 0;">
-          <p><strong>2. "Can a causal and stable IIR filter have exact linear phase?"</strong><br>
-          <span style="color:#ef4444; font-weight:600;">NO.</span> Linear phase requires pole symmetry ($p$ and $1/p^*$). If poles are inside the unit circle for stability, reciprocal poles must lie outside, violating causality.</p>
-          <hr style="border:0; border-top:1px solid var(--surface-border); margin:0.75rem 0;">
-          <p><strong>3. "Why does Type II FIR fail for Highpass filters?"</strong><br>
-          Type II FIR (symmetric, even length $N$) has a mandatory zero at $\omega = \pi$. Hence, it cannot pass high frequencies.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ==================== TAB 5: MOCK INTERVIEW SIMULATOR ==================== -->
-    <section id="tab-mock" class="tab-content">
-      <div class="hero-banner">
-        <h1 class="hero-title">5. MathWorks EDG Mock Interview Simulator</h1>
-        <p class="hero-subtitle">Click on any question to test your knowledge. Reveal complete model answers, mathematical derivations, live-coding solutions, and follow-up interviewer probing.</p>
-      </div>
-
-      <!-- Q1: Multi-tone sampling -->
-      <div class="qa-box">
-        <div class="qa-header" onclick="toggleQA(this)">
-          <div class="qa-title">
-            <span class="qa-badge badge-dsp">DSP</span>
-            <span>Q1: Sampling & Aliasing with Multi-Tone Sinusoids</span>
-          </div>
-          <span style="color:var(--primary); font-weight:bold;">▾ Expand</span>
-        </div>
-        <div class="qa-body">
-          <p><strong>Interviewer Prompt:</strong><br>
-          "Consider the continuous-time signal $x_a(t) = 3\cos(600\pi t) + 2\cos(1800\pi t) + \sin(3000\pi t)$.<br>
-          1. What is the minimum Nyquist rate $f_s$?<br>
-          2. If sampled at $f_s = 1200\text{ Hz}$, what discrete frequencies appear in $[0, f_s/2]$?"</p>
-          <div class="callout success">
-            <div class="callout-title">Model Answer & Derivation</div>
-            <p><strong>Part 1:</strong> Frequencies are $f_1 = 300\text{ Hz}$, $f_2 = 900\text{ Hz}$, $f_3 = 1500\text{ Hz}$. Maximum frequency $f_{\max} = 1500\text{ Hz}$.<br>
-            Nyquist rate $f_{\text{Nyquist}} = 2 f_{\max} = \mathbf{3000\text{ Hz}}$.</p>
-            <p><strong>Part 2:</strong> When sampled at $f_s = 1200\text{ Hz}$, folding limit is $f_s/2 = 600\text{ Hz}$:<br>
-            - $300\text{ Hz}$ remains $\mathbf{300\text{ Hz}}$ (no aliasing).<br>
-            - $900\text{ Hz}$ aliases: $|900 - 1200| = \mathbf{300\text{ Hz}}$.<br>
-            - $1500\text{ Hz}$ aliases: $|1500 - 1200| = \mathbf{300\text{ Hz}}$.<br>
-            <strong>All 3 tones collapse onto the single frequency of 300 Hz!</strong></p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Q2: Circular Buffer in C -->
-      <div class="qa-box">
-        <div class="qa-header" onclick="toggleQA(this)">
-          <div class="qa-title">
-            <span class="qa-badge badge-c">C / DSA</span>
-            <span>Q2: Implement an O(1) Circular Buffer for Streaming Audio</span>
-          </div>
-          <span style="color:var(--primary); font-weight:bold;">▾ Expand</span>
-        </div>
-        <div class="qa-body">
-          <p><strong>Interviewer Prompt:</strong><br>
-          "Design a C ring buffer for streaming sensor data. Incoming samples must be inserted in $O(1)$ time, and the latest $N$ samples must be accessible without shifting memory."</p>
-          <div class="callout success">
-            <div class="callout-title">Key Coding Solution & Pro-Tip</div>
-            <pre><code>// Modulo optimization when capacity K is a power of 2:
-head = (head + 1) & (capacity - 1); // Avoids CPU division cycle!</code></pre>
-            <p>Always check for <code>NULL</code> upon <code>malloc</code>, initialize pointers, and prevent reading uninitialized elements if <code>count < capacity</code>.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Q3: Vectorized Peak Detection in MATLAB -->
-      <div class="qa-box">
-        <div class="qa-header" onclick="toggleQA(this)">
-          <div class="qa-title">
-            <span class="qa-badge badge-matlab">MATLAB</span>
-            <span>Q3: Implement Peak Detection Without Built-in `findpeaks`</span>
-          </div>
-          <span style="color:var(--primary); font-weight:bold;">▾ Expand</span>
-        </div>
-        <div class="qa-body">
-          <p><strong>Interviewer Prompt:</strong><br>
-          "Write a clean, vectorized MATLAB function to find local maxima greater than threshold $T$. Explain how you handle flat plateaus."</p>
-          <div class="callout success">
-            <div class="callout-title">Solution</div>
-            <pre><code>is_peak = (x(2:end-1) > x(1:end-2)) & (x(2:end-1) > x(3:end)) & (x(2:end-1) >= T);
-peak_indices = find(is_peak) + 1;</code></pre>
-            <p>For plateaus (e.g., <code>[1 4 4 4 2]</code>), strict inequalities fail. We must detect rising edges, trace plateau width, and verify a subsequent falling edge, placing the peak at the plateau midpoint.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Q4: 2D Matrix Rotation In-Place -->
-      <div class="qa-box">
-        <div class="qa-header" onclick="toggleQA(this)">
-          <div class="qa-title">
-            <span class="qa-badge badge-c">DSA</span>
-            <span>Q4: Rotate an N x N Matrix 90° Clockwise In-Place (LeetCode 48)</span>
-          </div>
-          <span style="color:var(--primary); font-weight:bold;">▾ Expand</span>
-        </div>
-        <div class="qa-body">
-          <p><strong>Interviewer Prompt:</strong><br>
-          "Given a 2D square array representing an image or filter kernel, rotate it 90 degrees clockwise in-place with $O(1)$ auxiliary memory."</p>
-          <div class="callout success">
-            <div class="callout-title">Two-Step In-Place Algorithm</div>
-            <ol>
-              <li><strong>Transpose the matrix</strong> along the main diagonal ($swap(A[i][j], A[j][i])$ for $j > i$).</li>
-              <li><strong>Reverse each row horizontally</strong> (two-pointer swap from left and right).</li>
-            </ol>
-            <p>Time Complexity: $O(N^2)$, Auxiliary Space: $O(1)$.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Q5: Filter Stability & Bilinear Transform -->
-      <div class="qa-box">
-        <div class="qa-header" onclick="toggleQA(this)">
-          <div class="qa-title">
-            <span class="qa-badge badge-dsp">DSP</span>
-            <span>Q5: Bilinear Transformation & Frequency Warping</span>
-          </div>
-          <span style="color:var(--primary); font-weight:bold;">▾ Expand</span>
-        </div>
-        <div class="qa-body">
-          <p><strong>Interviewer Prompt:</strong><br>
-          "Why does the Bilinear Transformation avoid aliasing where the Impulse Invariance method fails? Why is frequency pre-warping necessary?"</p>
-          <div class="callout success">
-            <div class="callout-title">Theoretical Proof</div>
-            <p>Bilinear transform maps the continuous frequency axis $\Omega \in (-\infty, \infty)$ non-linearly to the unit circle $\omega \in (-\pi, \pi)$ via $\omega = 2\arctan(\frac{\Omega T_s}{2})$. Because the entire infinite axis is compressed onto one revolution of the unit circle, <strong>no aliasing occurs</strong>. Pre-warping $\Omega_c = \frac{2}{T_s}\tan(\frac{\omega_c}{2})$ ensures the desired cutoff frequency lands on the exact target bin.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <script>
-    // Tab Switching Logic
-    const tabBtns = document.querySelectorAll('.tab-btn');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabBtns.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = btn.dataset.tab;
-        tabBtns.forEach(b => b.classList.remove('active'));
-        tabContents.forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(target).classList.add('active');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    });
-
-    // Theme Toggle
-    const themeBtn = document.getElementById('themeToggleBtn');
-    let isDark = true;
-    themeBtn.addEventListener('click', () => {
-      isDark = !isDark;
-      document.body.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    });
-
-    // Collapsible QA
-    function toggleQA(header) {
-      const body = header.nextElementSibling;
-      const arrow = header.querySelector('span:last-child');
-      if (body.classList.contains('open')) {
-        body.classList.remove('open');
-        arrow.textContent = '▾ Expand';
-      } else {
-        body.classList.add('open');
-        arrow.textContent = '▴ Collapse';
-      }
-    }
-
-    // Copy Code Snippets
-    function copySnippet(btn) {
-      const code = btn.nextElementSibling.innerText;
-      navigator.clipboard.writeText(code).then(() => {
-        const originalText = btn.innerText;
-        btn.innerText = 'Copied!';
-        setTimeout(() => btn.innerText = originalText, 1800);
-      });
-    }
-
-    // Quick Search Filter
-    const filterInput = document.getElementById('filterInput');
-    filterInput.addEventListener('input', (e) => {
-      const term = e.target.value.toLowerCase().trim();
-      const currentActiveTab = document.querySelector('.tab-content.active');
-      const cards = currentActiveTab.querySelectorAll('.card, .qa-box, .callout, pre');
-
-      if (!term) {
-        cards.forEach(c => c.style.display = '');
-        return;
-      }
-
-      cards.forEach(c => {
-        const text = c.innerText.toLowerCase();
-        c.style.display = text.includes(term) ? '' : 'none';
-      });
-    });
-
-    // KaTeX Math Rendering
-    document.addEventListener("DOMContentLoaded", function() {
-      if (window.renderMathInElement) {
-        renderMathInElement(document.body, {
-          delimiters: [
-            {left: '$$', right: '$$', display: true},
-            {left: '$', right: '$', display: false}
-          ],
-          throwOnError : false
-        });
-      }
-    });
-  </script>
 </body>
 </html>
